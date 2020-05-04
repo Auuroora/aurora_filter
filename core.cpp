@@ -246,6 +246,7 @@ void upadate_exposure(int pos)
 		cv::subtract(imginfo.filter.bgr_filters[ColorSpaceIndex::G], imginfo.filter.diff, imginfo.filter.bgr_filters[ColorSpaceIndex::G]);
 		cv::subtract(imginfo.filter.bgr_filters[ColorSpaceIndex::R], imginfo.filter.diff, imginfo.filter.bgr_filters[ColorSpaceIndex::R]);
 	}
+	imginfo.trackbar.exposure = pos;
 }
 
 void update_gamma(int pos)
