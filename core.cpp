@@ -65,9 +65,8 @@ void applyFilter()
 	cv::add(imginfo.bgrImg, imginfo.filter.bgr_filter, imginfo.resImg);
 	imginfo.resImg.convertTo(imginfo.resImg, CV_8UC3);
 
-// apply HSV
-cv:
-	cvtColor(imginfo.resImg, imginfo.resImg, COLOR_BGR2HSV);
+	// apply HSV
+	cv::cvtColor(imginfo.resImg, imginfo.resImg, COLOR_BGR2HSV);
 	imginfo.resImg.convertTo(imginfo.resImg, CV_16SC3);
 	cv::merge(imginfo.filter.hsv_filters, imginfo.filter.hsv_filter);
 	cv::add(imginfo.resImg, imginfo.filter.hsv_filter, imginfo.resImg);
