@@ -251,33 +251,21 @@ void upadate_exposure(int pos)
 
 void update_gamma(int pos)
 {
-	//float temp_gamma = gamma / 100.0;
-	//float inv_gamma = 1.0 / temp_gamma;
+	// double gammaValue=gamma/100.0;
+	// double inv_gamma=1/gammaValue;
 
-	//double gamma_table[MAX_8B_I];
-	//for (int i = 0; i < MAX_8B_I; i++) {
-	//	gamma_table[i] = pow((i / MAX_8B_F), inv_gamma);
-	//}
+	// //cout<<temp_gamma<<endl;
+	// SET_START();
 
-	////hsv 필터에서 바꾸는걸로
-	//for (int y = 0; y < imginfo.row; y++)
-	//{
-	//	uchar *img_pointer = (uchar *)tempImg.ptr<uchar>(y);
-
-	//	for (int x = 0; x < imginfo.col; x++)
-	//	{
-	//		uchar *r_pointer;
-	//		uchar *g_pointer;
-	//		uchar *b_pointer;
-	//		r_pointer = &(img_pointer[3 * x + 0]);
-	//		g_pointer = &(img_pointer[3 * x + 1]);
-	//		b_pointer = &(img_pointer[3 * x + 2]);
-
-	//		for (int i = 0; i < 3; i++) {
-	//			img_pointer[3 * x + i] = saturate_cast<uchar>(gamma_table[img_pointer[3 * x + i]] * 255);
-	//		}
-	//	}
-	//}
+	// hsv_Split[2].convertTo(hsv_Split[2],CV_32F);
+	
+	// cv::multiply(1./255,hsv_Split[2],hsv_Split[2]);
+	// cv::pow(hsv_Split[2],inv_gamma,hsv_Split[2]);
+	// cv::multiply(255,hsv_Split[2],hsv_Split[2]);
+	// hsv_Split[2].convertTo(hsv_Split[2],CV_8U);
+	// cv::merge(hsv_Split,3,hsvImg);
+	// cv::cvtColor(hsvImg,newImg,COLOR_HSV2BGR);
+	// cv::imshow("Gamma",newImg);
 }
 
 void update_grain(int pos)

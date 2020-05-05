@@ -108,8 +108,8 @@
 #define CLARITY_MID 100
 
 #define GAMMA_MIN 0
-#define GAMMA_MAX 400
-#define GAMMA_MID 200
+#define GAMMA_MAX 200
+#define GAMMA_MID 0
 
 #define EXPOSURE_MIN 0
 #define EXPOSURE_MAX 200
