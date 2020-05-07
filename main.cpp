@@ -28,6 +28,10 @@ void init(Mat &img) {
 	cv::split(imginfo.bgrImg, imginfo.filter.bgr_filters);
 	cv::split(imginfo.hsvImg, imginfo.filter.hsv_filters);
 
+	//split img
+	cv::split(imginfo.bgrImg, imginfo.bgrSplit);
+	cv::split(imginfo.hsvImg, imginfo.hsvSplit);
+
 	//*******************************************************************************************************
 
 	// Gamma
@@ -142,6 +146,7 @@ int main() {
 
 	namedWindow(SET_WINDOW, WINDOW_NORMAL);
 	resizeWindow(SET_WINDOW, 500, 200);
+	imshow(TEST_WINDOW, imginfo.bgrImg);
 
 	/*********************************************************************
 	*	Make Trackbar
@@ -155,8 +160,8 @@ int main() {
 	//setTrackbarPos("Sat", SET_WINDOW, TRACKBAR_MID);
 
 	//// Value
-	//createTrackbar("Value", SET_WINDOW, TRACKBAR_MIN, TRACKBAR_MAX, onChangeValue);
-	//setTrackbarPos("Value", SET_WINDOW, TRACKBAR_MID);
+	createTrackbar("Value", SET_WINDOW, TRACKBAR_MIN, TRACKBAR_MAX, onChangeValue);
+	setTrackbarPos("Value", SET_WINDOW, TRACKBAR_MID);
 
 	// Temperature
 	createTrackbar("Temperature", SET_WINDOW, TRACKBAR_MIN, TRACKBAR_MAX, onChangeTemperature);

@@ -47,11 +47,9 @@ void onChangeSaturation(int curPos, void* ptr) {
 }
 
 void onChangeValue(int curPos, void* ptr) {
-	//imginfo.trackbar.color.val = curPos - TRACKBAR_MID;
-	//updateValue();
-	//merge(imginfo.filterHsvSplit, 3, imginfo.hsvImg);
-	//cvtColor(imginfo.hsvImg, imginfo.resImg, COLOR_HSV2BGR);
-	//imshow(TEST_WINDOW, imginfo.resImg);
+	updateValue(curPos - TRACKBAR_MID);
+	applyFilter();
+	imshow(TEST_WINDOW, imginfo.resImg);
 }
 
 void onChangeTemperature(int curPos, void* ptr) {

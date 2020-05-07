@@ -17,7 +17,7 @@ double weightPerColor(int color, int val)
 	switch (color)
 	{
 	case RED:
-		if (val < 0)
+		if (val < 0)	
 			return GND(abs(color - val), 80.0, 9.0);
 		else
 			return GND(abs(color - val), 40.0, 4.5);
@@ -56,7 +56,8 @@ void downsizing(Mat &src, Mat &dst, int &downsizedRow, int &downsizedCol)
 /*****************************************************************************
 *							applyFilter
 *	add bgr filter -> convert to hsv -> add hsv filter -> convert to bgr(res)
-*****************************************************************************/
+********************************************************************************/
+
 void applyFilter()
 {
 	// apply BGR
@@ -75,39 +76,10 @@ void applyFilter()
 	cv::cvtColor(imginfo.resImg, imginfo.resImg, COLOR_HSV2BGR);
 }
 
-//void applyFilter() {
-//	Mat bgr_filters[] = {
-//		imginfo.filter.blue,
-//		imginfo.filter.green,
-//		imginfo.filter.red
-//	};
-//	Mat hsv_filters[] = {
-//		imginfo.filter.hue,
-//		imginfo.filter.sat,
-//		imginfo.filter.val
-//	};
-//	Mat hsv_filter, bgr_filter;
-//
-//	// apply BGR
-//	imginfo.bgrImg.convertTo(imginfo.bgrImg, CV_16SC3);
-//	cv::merge(bgr_filters, 3, bgr_filter);
-//	cv::add(imginfo.bgrImg, bgr_filter, imginfo.resImg);
-//	imginfo.resImg.convertTo(imginfo.resImg, CV_8UC3);
-//
-//	// apply HSV
-//	cv:cvtColor(imginfo.resImg, imginfo.resImg, COLOR_BGR2HSV);
-//	imginfo.resImg.convertTo(imginfo.resImg, CV_16SC3);
-//	cv::merge(hsv_filters, 3, hsv_filter);
-//	cv::add(imginfo.resImg, hsv_filter, imginfo.resImg);
-//	imginfo.resImg.convertTo(imginfo.resImg, CV_8UC3);
-//
-//	cv::cvtColor(imginfo.resImg, imginfo.resImg, COLOR_HSV2BGR);
-//}
-
 void updateHue(int pos)
 {
 	//Mat diff = Mat::ones(imginfo.originImg.rows, imginfo.originImg.cols, CV_16S) * (pos - imginfo.trackbar.color.hue);
-	//
+	
 	//cv::add(imginfo.filter.hue, diff, imginfo.filter.hue);
 	//imginfo.trackbar.color.hue = pos;
 
@@ -121,18 +93,18 @@ void updateSaturation(int pos)
 	//imginfo.trackbar.color.sat = pos;
 }
 
-void updateValue(int pos)
+void updateValue(int pos) 
 {
-	//imginfo.filter.diff.setTo(pos - imginfo.trackbar.color.val);
-	//cv::add(imginfo.filter.val, imginfo.filter.diff, imginfo.filter.val);
-	//imginfo.trackbar.color.val = pos;
+	imginfo.filter.diff.setTo(pos - imginfo.trackbar.value);
+	cv::add(imginfo.filter.hsv_filters[ColorSpaceIndex::V], imginfo.filter.diff, imginfo.filter.hsv_filters[ColorSpaceIndex::V]);
+	imginfo.trackbar.value = pos;
 }
 
 void updateTemperature(int pos)
 {
 	imginfo.filter.diff.setTo(abs(imginfo.trackbar.temperature));
-	if (imginfo.trackbar.temperature >= 0)
-		cv::subtract(imginfo.filter.bgr_filters[ColorSpaceIndex::R], imginfo.filter.diff, imginfo.filter.bgr_filters[ColorSpaceIndex::R]);
+	if (imginfo.trackbar.temperature >= 0)	
+		cv::subtract(imginfo.filter.bgr_filters[ColorSpaceIndex::R],imginfo.filter.diff,imginfo.filter.bgr_filters[ColorSpaceIndex::R]);
 	else
 		cv::subtract(imginfo.filter.bgr_filters[ColorSpaceIndex::B], imginfo.filter.diff, imginfo.filter.bgr_filters[ColorSpaceIndex::B]);
 
@@ -174,7 +146,8 @@ void updateHighlightSaturation()
 
 /*********************************************************************
 *	이하 동훈이 코드
-*********************************************************************/
+**************************************************************/
+
 void update_tint(int pos)
 {
 	imginfo.filter.diff.setTo(pos - imginfo.trackbar.tint);
@@ -216,6 +189,8 @@ void update_constrast(int brightnessValue, int constrastValue)
 
 	////굳이 이걸 마스크로 표현해야하나?
 	//tempImg.convertTo(temp1Img, CV_8U, a, b);
+	//a x + b   =
+
 	//tempImg = temp1Img;
 }
 
@@ -251,6 +226,7 @@ void upadate_exposure(int pos)
 
 void update_gamma(int pos)
 {
+
 	//double gammaValue=gamma/100.0;
 	//double inv_gamma=1/gammaValue;
 
@@ -304,9 +280,35 @@ void update_grain(int pos)
 	//cv::cvtColor(hsvImg, tempImg, COLOR_HSV2BGR);
 }
 
-void update_vignette(int pos)
-{
-	//cv::split(tempImg, rgb_Split);
+void update_vignette(int pos)			// 코드 옮기면서 변경함 -> IMG.depth 에서 에러 발생 가능
+{  
+	imginfo.filter.diff = imginfo.filter.gaussian_kernel.clone();
+	cv::multiply(imginfo.filter.diff,imginfo.trackbar.vignette,imginfo.filter.diff);
+
+	//양이 밝게 , 음이 어둡게
+	if(imginfo.trackbar.vignette>0){
+		cv::multiply(imginfo.filter.bgr_filters[ColorSpaceIndex::B],imginfo.filter.diff,imginfo.filter.bgr_filters[ColorSpaceIndex::B]);
+		cv::multiply(imginfo.filter.bgr_filters[ColorSpaceIndex::G],imginfo.filter.diff,imginfo.filter.bgr_filters[ColorSpaceIndex::G]);
+		cv::multiply(imginfo.filter.bgr_filters[ColorSpaceIndex::R],imginfo.filter.diff,imginfo.filter.bgr_filters[ColorSpaceIndex::R]);
+	}
+	else if(imginfo.trackbar.vignette<0){
+		cv::divide(imginfo.filter.bgr_filters[ColorSpaceIndex::B],imginfo.filter.diff,imginfo.filter.bgr_filters[ColorSpaceIndex::B]);
+		cv::divide(imginfo.filter.bgr_filters[ColorSpaceIndex::G],imginfo.filter.diff,imginfo.filter.bgr_filters[ColorSpaceIndex::G]);
+		cv::divide(imginfo.filter.bgr_filters[ColorSpaceIndex::R],imginfo.filter.diff,imginfo.filter.bgr_filters[ColorSpaceIndex::R]);
+	}
+	cv::divide(imginfo.filter.diff,imginfo.trackbar.vignette,imginfo.filter.diff);
+	cv::multiply(imginfo.filter.diff,pos,imginfo.filter.diff);
+
+	if(pos>0){
+		cv::divide(imginfo.filter.bgr_filters[ColorSpaceIndex::B],imginfo.filter.diff,imginfo.filter.bgr_filters[ColorSpaceIndex::B]);
+		cv::divide(imginfo.filter.bgr_filters[ColorSpaceIndex::G],imginfo.filter.diff,imginfo.filter.bgr_filters[ColorSpaceIndex::G]);
+		cv::divide(imginfo.filter.bgr_filters[ColorSpaceIndex::R],imginfo.filter.diff,imginfo.filter.bgr_filters[ColorSpaceIndex::R]);
+	}
+	else if(pos<0){
+		cv::multiply(imginfo.filter.bgr_filters[ColorSpaceIndex::B],imginfo.filter.diff,imginfo.filter.bgr_filters[ColorSpaceIndex::B]);
+		cv::multiply(imginfo.filter.bgr_filters[ColorSpaceIndex::G],imginfo.filter.diff,imginfo.filter.bgr_filters[ColorSpaceIndex::G]);
+		cv::multiply(imginfo.filter.bgr_filters[ColorSpaceIndex::R],imginfo.filter.diff,imginfo.filter.bgr_filters[ColorSpaceIndex::R]);
+	}
 
 	///*
 	//	cout.setf(ios::left);

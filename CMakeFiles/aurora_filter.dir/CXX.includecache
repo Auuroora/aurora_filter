@@ -36,12 +36,6 @@ define.h
 header.h
 /Users/doroddong/Desktop/Capstone_Project/aurora_filter/header.h
 
-/Users/doroddong/Desktop/Capstone_Project/aurora_filter/test.cpp
-define.h
-/Users/doroddong/Desktop/Capstone_Project/aurora_filter/define.h
-header.h
-/Users/doroddong/Desktop/Capstone_Project/aurora_filter/header.h
-
 /usr/local/Cellar/opencv/4.2.0_3/include/opencv4/opencv2/calib3d.hpp
 opencv2/core.hpp
 /usr/local/Cellar/opencv/4.2.0_3/include/opencv4/opencv2/opencv2/core.hpp

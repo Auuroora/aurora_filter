@@ -45,6 +45,9 @@ public:
 	UMat bgrImg, hsvImg;	// bgr이미지, hsv이미지
 	UMat resImg;			// 최종 결과물
 
+	vector<UMat> bgrSplit;	//bgrImg를 split한 벡터
+	vector<UMat> hsvSplit;	//hsvImg를 split한 벡터
+	
 	// filter
 	struct Filter {
 		UMat diff;					// 필터 연산을 위한 행렬
