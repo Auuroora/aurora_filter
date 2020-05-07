@@ -48,11 +48,11 @@ void init(Mat &img) {
 	imginfo.filter.gaussian_kernel = kernel_res.getUMat(ACCESS_RW);
 
 	//Grain    
-	imginfo.filter.grain_mask = UMat::zeros(imginfo.col, imginfo.row, CV_8S);
+	imginfo.filter.grain_mask = UMat::zeros(imginfo.col, imginfo.row, CV_16S);
 
 	cv::randu(imginfo.filter.grain_mask, Scalar(-20), Scalar(20));
-	imginfo.filter.salt_mask = UMat(imginfo.col, imginfo.row, CV_8U);
-	imginfo.filter.pepper_mask = UMat(imginfo.col, imginfo.row, CV_8U);
+	// imginfo.filter.salt_mask = UMat(imginfo.col, imginfo.row, CV_8U);
+	// imginfo.filter.pepper_mask = UMat(imginfo.col, imginfo.row, CV_8U);
 
 	//Exposure
 	imginfo.filter.exposure_mask = UMat::ones(imginfo.col, imginfo.row, CV_8UC1);

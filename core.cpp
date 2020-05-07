@@ -255,6 +255,8 @@ void update_gamma(int pos)
 	//double inv_gamma=1/gammaValue;
 
 	imginfo.filter.diff=imginfo.filter.gamma_mask.clone();
+	cv::cvtColor(imginfo.filter.diff,imginfo.filter.diff,CV_32F);
+
 
 	cv::pow(imginfo.filter.diff,-imginfo.trackbar.gamma,imginfo.filter.diff);
 	cv::multiply(255,imginfo.filter.diff,imginfo.filter.diff);
@@ -268,12 +270,9 @@ void update_gamma(int pos)
 	cv::cvtColor(imginfo.filter.diff,imginfo.filter.diff,CV_8U);
 	cv::add(imginfo.filter.hsv_filters[ColorSpaceIndex::V],imginfo.filter.diff,imginfo.filter.hsv_filters[ColorSpaceIndex::V]);
 
+
+	cv::cvtColor(imginfo.filter.diff,imginfo.filter.diff,CV_16S);
 	imginfo.trackbar.gamma = pos;
-
-
-	
-
-	// //cout<<temp_gamma<<endl;
 
 	// hsv_Split[2].convertTo(hsv_Split[2],CV_32F);
 	
@@ -286,8 +285,17 @@ void update_gamma(int pos)
 	// cv::imshow("Gamma",newImg);
 }
 
+//
 void update_grain(int pos)
 {
+	imginfo.filter.diff = imginfo.filter.grain_mask.clone();
+
+
+	cv::multiply(imginfo.filter.diff,(pos-imginfo.trackbar.grain),imginfo.filter.diff);
+	cv::add(imginfo.filter.hsv_filters[ColorSpaceIndex::V],imginfo.filter.diff,imginfo.filter.hsv_filters[ColorSpaceIndex::V]);
+	
+	imginfo.trackbar.grain=pos;
+	
 	//cv::add(imginfo.filter.grain_mask * grainValue / 10.0, hsv_Split[2], hsv_Split[2]);
 	//hsv_Split[2].convertTo(hsv_Split[2], CV_8U);
 	//cv::multiply(2.0, hsv_Split[2], hsv_Split[2]);
