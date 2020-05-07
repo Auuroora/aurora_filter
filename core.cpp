@@ -257,12 +257,14 @@ void update_gamma(int pos)
 	imginfo.filter.diff=imginfo.filter.gamma_mask.clone();
 
 	cv::pow(imginfo.filter.diff,-imginfo.trackbar.gamma,imginfo.filter.diff);
+	cv::multiply(255,imginfo.filter.diff,imginfo.filter.diff);
 	cv::cvtColor(imginfo.filter.diff,imginfo.filter.diff,CV_8U);
 	cv::subtract(imginfo.filter.hsv_filters[ColorSpaceIndex::V],imginfo.filter.diff,imginfo.filter.hsv_filters[ColorSpaceIndex::V]);
 
 	imginfo.filter.diff=imginfo.filter.gamma_mask.clone();
 
 	cv::pow(imginfo.filter.diff,pos,imginfo.filter.diff);
+	cv::multiply(255,imginfo.filter.diff,imginfo.filter.diff);
 	cv::cvtColor(imginfo.filter.diff,imginfo.filter.diff,CV_8U);
 	cv::add(imginfo.filter.hsv_filters[ColorSpaceIndex::V],imginfo.filter.diff,imginfo.filter.hsv_filters[ColorSpaceIndex::V]);
 
