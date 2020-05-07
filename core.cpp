@@ -235,7 +235,7 @@ void upadate_exposure(int pos)
 		cv::subtract(imginfo.filter.bgr_filters[ColorSpaceIndex::R], imginfo.filter.diff, imginfo.filter.bgr_filters[ColorSpaceIndex::R]);
 	}
 
-	imginfo.filter.diff.setTo(abs(pos));
+	imginfo.filter.diff.setTo(2*abs(pos));
 	if(pos>=0){
 		cv::add(imginfo.filter.bgr_filters[ColorSpaceIndex::B], imginfo.filter.diff, imginfo.filter.bgr_filters[ColorSpaceIndex::B]);
 		cv::add(imginfo.filter.bgr_filters[ColorSpaceIndex::G], imginfo.filter.diff, imginfo.filter.bgr_filters[ColorSpaceIndex::G]);
@@ -251,11 +251,27 @@ void upadate_exposure(int pos)
 
 void update_gamma(int pos)
 {
-	// double gammaValue=gamma/100.0;
-	// double inv_gamma=1/gammaValue;
+	//double gammaValue=gamma/100.0;
+	//double inv_gamma=1/gammaValue;
+
+	imginfo.filter.diff=imginfo.filter.gamma_mask.clone();
+
+	cv::pow(imginfo.filter.diff,-imginfo.trackbar.gamma,imginfo.filter.diff);
+	cv::cvtColor(imginfo.filter.diff,imginfo.filter.diff,CV_8U);
+	cv::subtract(imginfo.filter.hsv_filters[ColorSpaceIndex::V],imginfo.filter.diff,imginfo.filter.hsv_filters[ColorSpaceIndex::V]);
+
+	imginfo.filter.diff=imginfo.filter.gamma_mask.clone();
+
+	cv::pow(imginfo.filter.diff,pos,imginfo.filter.diff);
+	cv::cvtColor(imginfo.filter.diff,imginfo.filter.diff,CV_8U);
+	cv::add(imginfo.filter.hsv_filters[ColorSpaceIndex::V],imginfo.filter.diff,imginfo.filter.hsv_filters[ColorSpaceIndex::V]);
+
+	imginfo.trackbar.gamma = pos;
+
+
+	
 
 	// //cout<<temp_gamma<<endl;
-	// SET_START();
 
 	// hsv_Split[2].convertTo(hsv_Split[2],CV_32F);
 	

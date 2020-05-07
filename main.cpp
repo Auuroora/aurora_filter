@@ -30,6 +30,10 @@ void init(Mat &img) {
 
 	//*******************************************************************************************************
 
+	// Gamma
+	imginfo.filter.hsv_filters[ColorSpaceIndex::V].convertTo(imginfo.filter.gamma_mask,CV_32F);
+	cv::multiply(1./255,imginfo.filter.gamma_mask,imginfo.filter.gamma_mask);
+
 	//Clarity
 	cv::bilateralFilter(imginfo.bgrImg, imginfo.filter.clarity_filter, DISTANCE, SIGMA_COLOR, SIGMA_SPACE);
 	imginfo.filter.clarity_mask = UMat::zeros(imginfo.col, imginfo.row, CV_16SC3);

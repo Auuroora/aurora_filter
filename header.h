@@ -56,6 +56,8 @@ public:
 
 		UMat gaussian_kernel;
 
+		UMat gamma_mask;
+
 		UMat grain_mask;
 		UMat salt_mask;
 		UMat pepper_mask;
