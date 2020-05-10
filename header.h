@@ -214,7 +214,7 @@ extern WorkingImgInfo imginfo;
 *********************************************************************/
 
 void update_brightness_constrast(int brightnessValue, int constrastValue);
-void upadate_exposure(int pos);
+void update_exposure(int pos);
 void update_gamma(int pos);
 void update_grain(int pos);
 void update_vignette(int pos);

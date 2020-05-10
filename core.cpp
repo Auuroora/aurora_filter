@@ -202,7 +202,7 @@ void update_brightness_and_constrast(int brightnessValue, int constrastValue)
 	imginfo.filter.diff.setTo(b);
 	cv::add(imginfo.resImg,imginfo.filter.diff,imginfo.resImg);
 
-	
+
 	//brightnessValue -= BRIGHTNESS_MID;
 	//constrastValue -= CONSTRAST_MID;
 	//tempImg = originImg.clone();
@@ -227,7 +227,7 @@ void update_brightness_and_constrast(int brightnessValue, int constrastValue)
 	//tempImg = temp1Img;
 }
 
-void upadate_exposure(int pos)
+void update_exposure(int pos)
 {
 	////메모리를 아끼냐 성능을 아끼냐 차이로 추후 업뎃
 	imginfo.filter.diff.setTo(2*abs(imginfo.trackbar.exposure));
