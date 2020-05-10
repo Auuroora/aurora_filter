@@ -145,7 +145,7 @@ void updateHighlightSaturation()
 }
 
 /*********************************************************************
-*	이하 동훈이 코드
+*	이하 동훈이 코드 
 **************************************************************/
 
 void update_tint(int pos)
@@ -162,12 +162,47 @@ void update_clarity(int pos)
 	cv::add(imginfo.resImg, imginfo.filter.clarity_mask, imginfo.resImg);
 }
 
-void update_brightness(int pos)
+// Refactoring : a,b 구하는건 함수로
+void update_brightness_and_constrast(int brightnessValue, int constrastValue)
 {
-}
+	double a,b;
 
-void update_constrast(int brightnessValue, int constrastValue)
-{
+	if(imginfo.trackbar.constrast>0){
+		double delta = 127.*imginfo.trackbar.constrast/255.;
+		a = 255./(255.-2*delta);
+		b= a*(imginfo.trackbar.brightness-delta);
+	}
+	else
+	{
+		double delta = 127.*imginfo.trackbar.constrast/255.;
+		a = (255.-2*delta)/255.;
+		b = a*imginfo.trackbar.brightness+delta;
+	}
+	
+	cv::multiply(imginfo.bgrImg,a-1,imginfo.filter.diff);
+	cv::subtract(imginfo.resImg,imginfo.filter.diff,imginfo.resImg);
+	imginfo.filter.diff.setTo(b);
+	cv::subtract(imginfo.resImg,imginfo.filter.diff,imginfo.resImg);
+
+
+	if(constrastValue>0){
+		double delta = 127.*constrastValue/255.;
+		a = 255./(255.-2*delta);
+		b= a*(brightnessValue-delta);
+	}
+	else
+	{
+		double delta = 127.*constrastValue/255.;
+		a = (255.-2*delta)/255.;
+		b = a*brightnessValue+delta;
+	}
+
+	cv::multiply(imginfo.bgrImg,a-1,imginfo.filter.diff);
+	cv::add(imginfo.resImg,imginfo.filter.diff,imginfo.resImg);
+	imginfo.filter.diff.setTo(b);
+	cv::add(imginfo.resImg,imginfo.filter.diff,imginfo.resImg);
+
+	
 	//brightnessValue -= BRIGHTNESS_MID;
 	//constrastValue -= CONSTRAST_MID;
 	//tempImg = originImg.clone();
@@ -187,9 +222,7 @@ void update_constrast(int brightnessValue, int constrastValue)
 	//	b = a * brightnessValue + delta;
 	//}
 
-	////굳이 이걸 마스크로 표현해야하나?
 	//tempImg.convertTo(temp1Img, CV_8U, a, b);
-	//a x + b   =
 
 	//tempImg = temp1Img;
 }
@@ -226,7 +259,6 @@ void upadate_exposure(int pos)
 
 void update_gamma(int pos)
 {
-
 	//double gammaValue=gamma/100.0;
 	//double inv_gamma=1/gammaValue;
 
