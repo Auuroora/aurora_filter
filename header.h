@@ -104,6 +104,8 @@ public:
 		int vibrance = 0;
 		int highlight = 0;
 		
+		int brightness=0;
+		int constrast=0;
 		int tint = 0;
 		int clarity = 0;
 		int exposure = 0;
@@ -210,9 +212,8 @@ extern WorkingImgInfo imginfo;
 /*********************************************************************
 *	이하 동훈이 코드
 *********************************************************************/
-void update_brightness(int pos);
-void update_constrast(int brightnessValue, int constrastValue);
-void update_clarity(int pos);
+
+void update_brightness_constrast(int brightnessValue, int constrastValue);
 void upadate_exposure(int pos);
 void update_gamma(int pos);
 void update_grain(int pos);
