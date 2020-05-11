@@ -6,7 +6,8 @@ using namespace std;
 
 WorkingImgInfo imginfo;
 
-void init(Mat &img) {
+void init(Mat &img)
+{
 	// save original Image
 	imginfo.set_origin_img(img);
 
@@ -17,7 +18,8 @@ void init(Mat &img) {
 	// TO DO
 
 	// convert to 3 channels(BGRA -> BGR)
-	if (imginfo.downsized_img.channels() == 4) {
+	if (imginfo.downsized_img.channels() == 4)
+	{
 		cv::cvtColor(imginfo.downsized_img, imginfo.downsized_img, COLOR_BGRA2BGR);
 	}
 
@@ -35,8 +37,8 @@ void init(Mat &img) {
 	//*******************************************************************************************************
 
 	// Gamma
-	imginfo.filter.hsv_filters[ColorSpaceIndex::V].convertTo(imginfo.filter.gamma_mask,CV_32F);
-	cv::multiply(1./255,imginfo.filter.gamma_mask,imginfo.filter.gamma_mask);
+	imginfo.filter.hsv_filters[ColorSpaceIndex::V].convertTo(imginfo.filter.gamma_mask, CV_32F);
+	cv::multiply(1. / 255, imginfo.filter.gamma_mask, imginfo.filter.gamma_mask);
 
 	//Clarity
 	cv::bilateralFilter(imginfo.bgr_img, imginfo.filter.clarity_filter, DISTANCE, SIGMA_COLOR, SIGMA_SPACE);
@@ -51,7 +53,7 @@ void init(Mat &img) {
 	cv::normalize(kernel_res, kernel_res, 0, 1, NORM_MINMAX);
 	imginfo.filter.gaussian_kernel = kernel_res.getUMat(ACCESS_RW);
 
-	//Grain    
+	//Grain
 	imginfo.filter.grain_mask = UMat::zeros(imginfo.col, imginfo.row, CV_16S);
 
 	cv::randu(imginfo.filter.grain_mask, Scalar(-20), Scalar(20));
@@ -60,8 +62,6 @@ void init(Mat &img) {
 
 	//Exposure
 	imginfo.filter.exposure_mask = UMat::ones(imginfo.col, imginfo.row, CV_8UC1);
-
-
 
 	//*******************************************************************************************************
 
@@ -78,7 +78,7 @@ void init(Mat &img) {
 	imginfo.weight.hue = UMat::ones(imginfo.row, imginfo.col, CV_32F);
 	imginfo.weight.sat = UMat::ones(imginfo.row, imginfo.col, CV_32F);
 	imginfo.weight.val = UMat::ones(imginfo.row, imginfo.col, CV_32F);
-	
+
 	imginfo.filter.bgr_filters[ColorSpaceIndex::B] = UMat::zeros(imginfo.row, imginfo.col, CV_16S);
 	imginfo.filter.bgr_filters[ColorSpaceIndex::G] = UMat::zeros(imginfo.row, imginfo.col, CV_16S);
 	imginfo.filter.bgr_filters[ColorSpaceIndex::R] = UMat::zeros(imginfo.row, imginfo.col, CV_16S);
@@ -95,26 +95,30 @@ void init(Mat &img) {
 	// TO DO
 }
 
-int main() {
+int main()
+{
 	/*********************************************************************
 	*	OpenCL Test
 	*********************************************************************/
-	// OpenCL을 사용할 수 있는지 테스트 
-	if (!ocl::haveOpenCL()) {
+	// OpenCL을 사용할 수 있는지 테스트
+	if (!ocl::haveOpenCL())
+	{
 		cout << "에러 : OpenCL을 사용할 수 없는 시스템입니다." << endl;
 		return -1;
 	}
 
 	// 컨텍스트 생성
 	ocl::Context context;
-	if (!context.create(ocl::Device::TYPE_GPU)) {
+	if (!context.create(ocl::Device::TYPE_GPU))
+	{
 		cout << " 에러 : 컨텍스트를 생성할 수 없습니다." << endl;
 		return -1;
 	}
 
 	// GPU 장치 정보
 	cout << context.ndevices() << " GPU device (s) detected " << endl;
-	for (size_t i = 0; i < context.ndevices(); i++) {
+	for (size_t i = 0; i < context.ndevices(); i++)
+	{
 		ocl::Device device = context.device(i);
 		cout << " - Device " << i << " --- " << endl;
 		cout << " Name : " << device.name() << endl;
@@ -130,7 +134,8 @@ int main() {
 	*	Init
 	*********************************************************************/
 	Mat inputImg = imread("3024x3024.jpg", IMREAD_COLOR);
-	if (inputImg.empty()) {
+	if (inputImg.empty())
+	{
 		cout << "Image Open Failed" << endl;
 		return -1;
 	}
@@ -185,9 +190,8 @@ int main() {
 	//createTrackbar("S", SET_WINDOW, TRACKBAR_MIN, SAT_MAX, onChangeHighlight);
 	//setTrackbarPos("S", SET_WINDOW, TRACKBAR_MIN);
 
-	while (waitKey(0) != 27);
+	while (waitKey(0) != 27)
+		;
 	cv::destroyAllWindows();
 	return 0;
 }
-
-
