@@ -7,16 +7,16 @@ using namespace std;
 /*********************************************************************
 *	Mouse Callback Function
 *********************************************************************/
-void mouseCallback(int event, int x, int y, int flags, void *userdata) {
+void mouse_callback(int event, int x, int y, int flags, void *userdata) {
 	Mat* img = static_cast<Mat*>(userdata);
 
 	switch (event) {
 	case EVENT_LBUTTONDOWN:
-		imshow(TEST_WINDOW, imginfo.downsizedImg);
+		imshow(TEST_WINDOW, imginfo.downsized_img);
 		break;
 
 	case EVENT_LBUTTONUP:
-		imshow(TEST_WINDOW, imginfo.resImg);
+		imshow(TEST_WINDOW, imginfo.res_img);
 		break;
 
 	case EVENT_MOUSEMOVE:
@@ -35,42 +35,37 @@ void mouseCallback(int event, int x, int y, int flags, void *userdata) {
 /*********************************************************************
 *	Trackbar Callback Function
 *********************************************************************/
-void onChangeHue(int curPos, void* ptr) {
-	//updateHue(curPos - TRACKBAR_MID);
-	//imshow(TEST_WINDOW, imginfo.resImg);
+void on_change_hue(int cur_pos, void* ptr) {
+	//update_hue(cur_pos - TRACKBAR_MID);
+	//imshow(TEST_WINDOW, imginfo.res_img);
 }
 
-void onChangeSaturation(int curPos, void* ptr) {
-	updateSaturation(curPos - TRACKBAR_MID);
-	applyFilter();
-	imshow(TEST_WINDOW, imginfo.resImg);
+void on_change_saturation(int cur_pos, void* ptr) {
+	update_saturation(cur_pos - TRACKBAR_MID);
+	apply_filter();
+	imshow(TEST_WINDOW, imginfo.res_img);
 }
 
-void onChangeValue(int curPos, void* ptr) {
-	updateValue(curPos - TRACKBAR_MID);
-	applyFilter();
-	imshow(TEST_WINDOW, imginfo.resImg);
+void on_change_value(int cur_pos, void* ptr) {
+	update_value(cur_pos - TRACKBAR_MID);
+	apply_filter();
+	imshow(TEST_WINDOW, imginfo.res_img);
 }
 
-void onChangeTemperature(int curPos, void* ptr) {
+void on_change_temperature(int cur_pos, void* ptr) {
 	
-
-	updateTemperature(curPos - TRACKBAR_MID);
-	applyFilter();
-
-	
-	imshow(TEST_WINDOW, imginfo.resImg);
+	update_temperature(cur_pos - TRACKBAR_MID);
+	apply_filter();
+	imshow(TEST_WINDOW, imginfo.res_img);
 }
 
-void onChangeVibrance(int curPos, void* ptr) {
-	//imginfo.trackbar.color.vibrance = curPos - TRACKBAR_MID;
-	//updateVibrance();
-	//merge(imginfo.filterHsvSplit, 3, imginfo.hsvImg);
-	//cvtColor(imginfo.hsvImg, imginfo.resImg, COLOR_HSV2BGR);
-	//imshow(TEST_WINDOW, imginfo.resImg);
+void on_change_vibrance(int cur_pos, void* ptr) {
+   update_vibrance(cur_pos - 30);
+   apply_filter();
+   imshow(TEST_WINDOW, imginfo.res_img);
 }
 
-void onChangeColorFilter(int curPos, void* ptr) {
+void on_change_color_filter(int cur_pos, void* ptr) {
 	//int r = imginfo.originImg.rows;
 	//int c = imginfo.originImg.cols;
 	//int redPos = getTrackbarPos("R", SET_WINDOW);
@@ -83,14 +78,14 @@ void onChangeColorFilter(int curPos, void* ptr) {
 	//};
 	//Mat res;
 	//merge(v, 3, res);
-	//add(imginfo.originImg, res, imginfo.resImg);
-	//imshow(TEST_WINDOW, imginfo.resImg);
+	//add(imginfo.originImg, res, imginfo.res_img);
+	//imshow(TEST_WINDOW, imginfo.res_img);
 }
 
-void onChangeHighlight(int curPos, void* ptr) {
-	//imginfo.trackbar.splittone.highlight = curPos;
+void on_change_highlight(int cur_pos, void* ptr) {
+	//imginfo.trackbar.splittone.highlight = cur_pos;
 	//updateHighlightHue();
 	//merge(imginfo.filterHsvSplit, 3, imginfo.hsvImg);
-	//cvtColor(imginfo.hsvImg, imginfo.resImg, COLOR_HSV2BGR);
-	//imshow(TEST_WINDOW, imginfo.resImg);
+	//cvtColor(imginfo.hsvImg, imginfo.res_img, COLOR_HSV2BGR);
+	//imshow(TEST_WINDOW, imginfo.res_img);
 }

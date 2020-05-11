@@ -41,12 +41,12 @@ public:
 	int row; // 다운사이징 후 사진 가로
 	int col; // 다운사이징 후 사진 세로
 
-	UMat downsizedImg;		// 다운사이징 후 이미지
-	UMat bgrImg, hsvImg;	// bgr이미지, hsv이미지
-	UMat resImg;			// 최종 결과물
+	UMat downsized_img;		// 다운사이징 후 이미지
+	UMat bgr_img, hsv_img;	// bgr이미지, hsv이미지
+	UMat res_img;			// 최종 결과물
 
-	vector<UMat> bgrSplit;	//bgrImg를 split한 벡터
-	vector<UMat> hsvSplit;	//hsvImg를 split한 벡터
+	vector<UMat> bgr_split;	//bgrImg를 split한 벡터
+	vector<UMat> hsv_split;	//hsvImg를 split한 벡터
 	
 	// filter
 	struct Filter {
@@ -116,39 +116,39 @@ public:
 	} trackbar;
 
 	// getter & setter
-	Mat getOriginImg() {
-		return this->originImg;
+	Mat get_origin_img() {
+		return this->origin_img;
 	}
 
-	void setOriginImg(Mat img) {
-		this->originImg = img.clone();
+	void set_origin_img(Mat img) {
+		this->origin_img = img.clone();
 	}
 
 	UMat getResImg() {
-		return this->resImg;
+		return this->res_img;
 	}
 
 private:
-	Mat originImg; // 변경 불가한 원본 이미지(다운사이징 전)
+	Mat origin_img; // 변경 불가한 원본 이미지(다운사이징 전)
 };
 
 class ParallelModulo : public ParallelLoopBody {
 private:
 	Mat &src;
 	Mat &dst;
-	short* dataSrc;
-	short* dataDst;
+	short* data_src;
+	short* data_dst;
 	int mod;
 
 public:
 	ParallelModulo(Mat &src, Mat &dst, int mod) : src(src), dst(dst), mod(mod) {
-		dataSrc = (short*)src.data;
-		dataDst = (short*)dst.data;
+		data_src = (short*)src.data;
+		data_dst = (short*)dst.data;
 	}
 
 	virtual void operator ()(const Range& range) const CV_OVERRIDE {
 		for (int r = range.start; r < range.end; r++) {
-			dataDst[r] = (dataSrc[r] < 0 ? dataSrc[r] + mod : dataSrc[r] % mod);
+			data_dst[r] = (data_src[r] < 0 ? data_src[r] + mod : data_src[r] % mod);
 		}
 	}
 
@@ -160,18 +160,18 @@ public:
 class ParallelMakeWeight : public ParallelLoopBody {
 private:
 	Mat &origin;
-	Mat &weighMatrix;
+	Mat &weigh_matrix;
 	double min, max;
-	double(*weightFunc)(int, int);
+	double(*weight_func)(int, int);
 
 public:
-	ParallelMakeWeight(Mat &i, Mat &w, double(*wF)(int, int)) : origin(i), weighMatrix(w), weightFunc(wF) {
+	ParallelMakeWeight(Mat &i, Mat &w, double(*wF)(int, int)) : origin(i), weigh_matrix(w), weight_func(wF) {
 		cv::minMaxIdx(origin, &min, &max);
 	}
 
 	virtual void operator ()(const Range& range) const CV_OVERRIDE {
 		for (int r = range.start; r < range.end; r++) {
-			weighMatrix.data[r] = 10.0;//weightFunc((int)origin.data[r], max);
+			weigh_matrix.data[r] = 10.0;//weight_func((int)origin.data[r], max);
 		}
 	}
 
@@ -181,31 +181,31 @@ public:
 };
 
 // core.cpp
-double GND(double x, double w, double std, double mu);
-double weightPerColor(int color, int val);
-double weightPerSaturation(int val, int mu);
-double weightPerValue(int val, int mu);
-void updateHue(int pos);
-void updateSaturation(int pos);
-void updateValue(int pos);
-void updateTemperature(int pos);
-void updateVibrance();
-void updateHighlightSaturation();
-void updateHighlightHue();
-void applyFilter();
+double calculate_gaussian_normal_distribution(double x, double w, double std, double mu);
+double make_weight_per_color(int color, int val);
+double make_weight_per_saturation(int val, int mu);
+double make_weight_per_value(int val, int mu);
+void update_hue(int pos);
+void update_saturation(int pos);
+void update_value(int pos);
+void update_temperature(int pos);
+void update_vibrance(int pos);
+void update_highlight_hue(int pos);
+void update_highlight_saturation(int pos);
+void apply_filter();
 
 // callback
-void mouseCallback(int event, int x, int y, int flags, void *userdata);
-void onChangeHue(int pos, void* ptr);
-void onChangeSaturation(int v, void* ptr);
-void onChangeValue(int v, void* ptr);
-void onChangeTemperature(int v, void* ptr);
-void onChangeVibrance(int v, void* ptr);
-void onChangeHighlight(int curPos, void* ptr);
+void mouse_callback(int event, int x, int y, int flags, void *userdata);
+void on_change_hue(int pos, void* ptr);
+void on_change_saturation(int v, void* ptr);
+void on_change_value(int v, void* ptr);
+void on_change_temperature(int v, void* ptr);
+void on_change_vibrance(int v, void* ptr);
+void on_change_highlight(int curPos, void* ptr);
 
 
 // 테스트용
-void onChangeColorFilter(int curPos, void* ptr);
+void on_change_color_filter(int curPos, void* ptr);
 
 extern WorkingImgInfo imginfo;
 

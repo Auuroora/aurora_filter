@@ -8,29 +8,29 @@ WorkingImgInfo imginfo;
 
 void init(Mat &img) {
 	// save original Image
-	imginfo.setOriginImg(img);
+	imginfo.set_origin_img(img);
 
 	// downsizing
-	imginfo.downsizedImg = img.clone().getUMat(ACCESS_RW);
-	imginfo.row = imginfo.downsizedImg.rows;
-	imginfo.col = imginfo.downsizedImg.cols;
+	imginfo.downsized_img = img.clone().getUMat(ACCESS_RW);
+	imginfo.row = imginfo.downsized_img.rows;
+	imginfo.col = imginfo.downsized_img.cols;
 	// TO DO
 
 	// convert to 3 channels(BGRA -> BGR)
-	if (imginfo.downsizedImg.channels() == 4) {
-		cv::cvtColor(imginfo.downsizedImg, imginfo.downsizedImg, COLOR_BGRA2BGR);
+	if (imginfo.downsized_img.channels() == 4) {
+		cv::cvtColor(imginfo.downsized_img, imginfo.downsized_img, COLOR_BGRA2BGR);
 	}
 
 	// setting img
-	//imginfo.bgrImg = imginfo.downsizedImg.clone();
-	imginfo.bgrImg = imginfo.downsizedImg.clone();
-	cv::cvtColor(imginfo.bgrImg, imginfo.hsvImg, COLOR_BGR2HSV);
-	cv::split(imginfo.bgrImg, imginfo.filter.bgr_filters);
-	cv::split(imginfo.hsvImg, imginfo.filter.hsv_filters);
+	//imginfo.bgr_img = imginfo.downsized_img.clone();
+	imginfo.bgr_img = imginfo.downsized_img.clone();
+	cv::cvtColor(imginfo.bgr_img, imginfo.hsv_img, COLOR_BGR2HSV);
+	cv::split(imginfo.bgr_img, imginfo.filter.bgr_filters);
+	cv::split(imginfo.hsv_img, imginfo.filter.hsv_filters);
 
 	//split img
-	cv::split(imginfo.bgrImg, imginfo.bgrSplit);
-	cv::split(imginfo.hsvImg, imginfo.hsvSplit);
+	cv::split(imginfo.bgr_img, imginfo.bgr_split);
+	cv::split(imginfo.hsv_img, imginfo.hsv_split);
 
 	//*******************************************************************************************************
 
@@ -39,7 +39,7 @@ void init(Mat &img) {
 	cv::multiply(1./255,imginfo.filter.gamma_mask,imginfo.filter.gamma_mask);
 
 	//Clarity
-	cv::bilateralFilter(imginfo.bgrImg, imginfo.filter.clarity_filter, DISTANCE, SIGMA_COLOR, SIGMA_SPACE);
+	cv::bilateralFilter(imginfo.bgr_img, imginfo.filter.clarity_filter, DISTANCE, SIGMA_COLOR, SIGMA_SPACE);
 	imginfo.filter.clarity_mask = UMat::zeros(imginfo.col, imginfo.row, CV_16SC3);
 
 	//Vignette
@@ -140,13 +140,13 @@ int main() {
 	/*********************************************************************
 	*	Make Window
 	*********************************************************************/
-	namedWindow(TEST_WINDOW, WINDOW_NORMAL);
-	resizeWindow(TEST_WINDOW, 400, 600);
+	cv::namedWindow(TEST_WINDOW, WINDOW_NORMAL);
+	cv::resizeWindow(TEST_WINDOW, 400, 600);
 	//setMouseCallback(TEST_WINDOW, mouseCallback, &imginfo.resImg);
 
-	namedWindow(SET_WINDOW, WINDOW_NORMAL);
-	resizeWindow(SET_WINDOW, 500, 200);
-	imshow(TEST_WINDOW, imginfo.bgrImg);
+	cv::namedWindow(SET_WINDOW, WINDOW_NORMAL);
+	cv::resizeWindow(SET_WINDOW, 1000, 200);
+	cv::imshow(TEST_WINDOW, imginfo.bgr_img);
 
 	/*********************************************************************
 	*	Make Trackbar
@@ -160,12 +160,12 @@ int main() {
 	//setTrackbarPos("Sat", SET_WINDOW, TRACKBAR_MID);
 
 	//// Value
-	createTrackbar("Value", SET_WINDOW, TRACKBAR_MIN, TRACKBAR_MAX, onChangeValue);
-	setTrackbarPos("Value", SET_WINDOW, TRACKBAR_MID);
+	cv::createTrackbar("Value", SET_WINDOW, TRACKBAR_MIN, TRACKBAR_MAX, on_change_value);
+	cv::setTrackbarPos("Value", SET_WINDOW, TRACKBAR_MID);
 
 	// Temperature
-	createTrackbar("Temperature", SET_WINDOW, TRACKBAR_MIN, TRACKBAR_MAX, onChangeTemperature);
-	setTrackbarPos("Temperature", SET_WINDOW, TRACKBAR_MID);
+	cv::createTrackbar("Vibrance", SET_WINDOW, TRACKBAR_MIN, TRACKBAR_MAX, on_change_vibrance);
+	cv::setTrackbarPos("Vibrance", SET_WINDOW, TRACKBAR_MID);
 
 	//// Vibrance
 	//createTrackbar("Vibrance", SET_WINDOW, TRACKBAR_MIN, TRACKBAR_MAX, onChangeVibrance);
@@ -186,7 +186,7 @@ int main() {
 	//setTrackbarPos("S", SET_WINDOW, TRACKBAR_MIN);
 
 	while (waitKey(0) != 27);
-	destroyAllWindows();
+	cv::destroyAllWindows();
 	return 0;
 }
 

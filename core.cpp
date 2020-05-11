@@ -4,12 +4,12 @@
 using namespace cv;
 using namespace std;
 
-double GND(double x, double w, double std, double mu = 0)
+double calculate_gaussian_normal_distribution(double x, double w, double std, double mu = 0)
 {
 	return w * pow(EXP, -((x - mu) * (x - mu)) / (2 * std * std)) / sqrt(2 * PI * std * std);
 }
 
-double weightPerColor(int color, int val)
+double make_weight_per_color(int color, int val)
 {
 	if (color == RED && val > 160)
 		val -= 180;
@@ -18,35 +18,35 @@ double weightPerColor(int color, int val)
 	{
 	case RED:
 		if (val < 0)	
-			return GND(abs(color - val), 80.0, 9.0);
+			return calculate_gaussian_normal_distribution(abs(color - val), 80.0, 9.0);
 		else
-			return GND(abs(color - val), 40.0, 4.5);
+			return calculate_gaussian_normal_distribution(abs(color - val), 40.0, 4.5);
 
 	case ORANGE:
-		return GND(abs(color - val), 45.0, 7.0);
+		return calculate_gaussian_normal_distribution(abs(color - val), 45.0, 7.0);
 	case YELLOW:
-		return GND(abs(color - val), 40.0, 7.5);
+		return calculate_gaussian_normal_distribution(abs(color - val), 40.0, 7.5);
 	case GREEN:
-		return GND(abs(color - val), 120, 14);
+		return calculate_gaussian_normal_distribution(abs(color - val), 120, 14);
 	case BLUE:
-		return GND(abs(color - val), 120, 14);
+		return calculate_gaussian_normal_distribution(abs(color - val), 120, 14);
 	case VIOLET:
-		return GND(abs(color - val), 110, 12);
+		return calculate_gaussian_normal_distribution(abs(color - val), 110, 12);
 	}
 	return 0;
 }
 
-double weightPerSaturation(int val, int mu)
+double make_weight_per_saturation(int val, int mu)
 {
-	return GND((double)val, 300.0, 100.0, (double)mu);
+	return calculate_gaussian_normal_distribution((double)val, 300.0, 100.0, (double)mu);
 }
 
-double weightPerValue(int val, int mu)
+double make_weight_per_value(int val, int mu)
 {
-	return GND((double)val, 300.0, 100.0, (double)mu);
+	return calculate_gaussian_normal_distribution((double)val, 300.0, 100.0, (double)mu);
 }
 
-void downsizing(Mat &src, Mat &dst, int &downsizedRow, int &downsizedCol)
+void downsize_img(Mat &src, Mat &dst, int &downsizedRow, int &downsizedCol)
 {
 	int row = src.rows;
 	int col = src.cols;
@@ -54,29 +54,29 @@ void downsizing(Mat &src, Mat &dst, int &downsizedRow, int &downsizedCol)
 }
 
 /*****************************************************************************
-*							applyFilter
+*							apply_filter
 *	add bgr filter -> convert to hsv -> add hsv filter -> convert to bgr(res)
 ********************************************************************************/
 
-void applyFilter()
+void apply_filter()
 {
 	// apply BGR
-	imginfo.bgrImg.convertTo(imginfo.bgrImg, CV_16SC3);
+	imginfo.bgr_img.convertTo(imginfo.bgr_img, CV_16SC3);
 	cv::merge(imginfo.filter.bgr_filters, imginfo.filter.bgr_filter);
-	cv::add(imginfo.bgrImg, imginfo.filter.bgr_filter, imginfo.resImg);
-	imginfo.resImg.convertTo(imginfo.resImg, CV_8UC3);
+	cv::add(imginfo.bgr_img, imginfo.filter.bgr_filter, imginfo.res_img);
+	imginfo.res_img.convertTo(imginfo.res_img, CV_8UC3);
 
 	// apply HSV
-	cv::cvtColor(imginfo.resImg, imginfo.resImg, COLOR_BGR2HSV);
-	imginfo.resImg.convertTo(imginfo.resImg, CV_16SC3);
+	cv::cvtColor(imginfo.res_img, imginfo.res_img, COLOR_BGR2HSV);
+	imginfo.res_img.convertTo(imginfo.res_img, CV_16SC3);
 	cv::merge(imginfo.filter.hsv_filters, imginfo.filter.hsv_filter);
-	cv::add(imginfo.resImg, imginfo.filter.hsv_filter, imginfo.resImg);
-	imginfo.resImg.convertTo(imginfo.resImg, CV_8UC3);
+	cv::add(imginfo.res_img, imginfo.filter.hsv_filter, imginfo.res_img);
+	imginfo.res_img.convertTo(imginfo.res_img, CV_8UC3);
 
-	cv::cvtColor(imginfo.resImg, imginfo.resImg, COLOR_HSV2BGR);
+	cv::cvtColor(imginfo.res_img, imginfo.res_img, COLOR_HSV2BGR);
 }
 
-void updateHue(int pos)
+void update_hue(int pos)
 {
 	//Mat diff = Mat::ones(imginfo.originImg.rows, imginfo.originImg.cols, CV_16S) * (pos - imginfo.trackbar.color.hue);
 	
@@ -86,21 +86,21 @@ void updateHue(int pos)
 	//cv::parallel_for_(Range(0, imginfo.originImg.rows * imginfo.originImg.cols), ParallelModulo(splitImg[H], splitImg[H], (HUE_MAX + 1)));
 }
 
-void updateSaturation(int pos)
+void update_saturation(int pos)
 {
 	//imginfo.filter.diff.setTo(pos - imginfo.trackbar.color.sat);
 	//cv::add(imginfo.filter.sat, imginfo.filter.diff, imginfo.filter.sat);
 	//imginfo.trackbar.color.sat = pos;
 }
 
-void updateValue(int pos) 
+void update_value(int pos) 
 {
 	imginfo.filter.diff.setTo(pos - imginfo.trackbar.value);
 	cv::add(imginfo.filter.hsv_filters[ColorSpaceIndex::V], imginfo.filter.diff, imginfo.filter.hsv_filters[ColorSpaceIndex::V]);
 	imginfo.trackbar.value = pos;
 }
 
-void updateTemperature(int pos)
+void update_temperature(int pos)
 {
 	imginfo.filter.diff.setTo(abs(imginfo.trackbar.temperature));
 	if (imginfo.trackbar.temperature >= 0)	
@@ -117,14 +117,33 @@ void updateTemperature(int pos)
 	imginfo.trackbar.temperature = pos;
 }
 
-void updateVibrance()
-{
-	//int len = imginfo.originImg.rows * imginfo.originImg.cols;
-	//ParallelChangeVibrance parallelChangeVibrance(imginfo.originHsvSplit[S], imginfo.filterHsvSplit[S]);
-	//cv::parallel_for_(Range(0, len), parallelChangeVibrance);
+void update_vibrance(int pos) {
+   // 기존 값 빼고
+   imginfo.filter.diff.setTo(imginfo.trackbar.vibrance);
+   cv::subtract(
+      imginfo.filter.hsv_filters[ColorSpaceIndex::S], 
+      imginfo.filter.diff, 
+      imginfo.filter.hsv_filters[ColorSpaceIndex::S]
+   );
+
+   // 변경치 * 가중치 더해서
+   imginfo.filter.diff.setTo(pos);
+   imginfo.filter.diff.convertTo(imginfo.filter.diff, CV_32F);
+   imginfo.filter.diff = imginfo.filter.diff.mul(1);
+   imginfo.filter.diff.convertTo(imginfo.filter.diff, CV_16S);
+
+   // 적용
+   cv::add(
+      imginfo.filter.hsv_filters[ColorSpaceIndex::S], 
+      imginfo.filter.diff, 
+      imginfo.filter.hsv_filters[ColorSpaceIndex::S]
+   );
+
+   // 변경치 업데이트
+   imginfo.trackbar.vibrance = pos;
 }
 
-void updateHighlightHue()
+void update_highlight_hue()
 {
 	//Mat add = Mat::ones(imginfo.originImg.rows, imginfo.originImg.cols, CV_32F) * (double)imginfo.trackbar.splittone.highlight;
 
@@ -134,7 +153,7 @@ void updateHighlightHue()
 	//cv::add(imginfo.originHsvSplit[H], add, imginfo.filterHsvSplit[H]);
 }
 
-void updateHighlightSaturation()
+void update_highlight_saturation()
 {
 	//Mat add = Mat::ones(imginfo.originImg.rows, imginfo.originImg.cols, CV_32F) * (double)imginfo.trackbar.splittone.highlight;
 
@@ -158,8 +177,8 @@ void update_tint(int pos)
 void update_clarity(int pos)
 {
 	float clarityValue_f = pos / (float)10.0;
-	cv::addWeighted(imginfo.bgrImg, clarityValue_f, imginfo.filter.clarity_filter, -clarityValue_f, 0, imginfo.filter.clarity_mask);
-	cv::add(imginfo.resImg, imginfo.filter.clarity_mask, imginfo.resImg);
+	cv::addWeighted(imginfo.bgr_img, clarityValue_f, imginfo.filter.clarity_filter, -clarityValue_f, 0, imginfo.filter.clarity_mask);
+	cv::add(imginfo.res_img, imginfo.filter.clarity_mask, imginfo.res_img);
 }
 
 // Refactoring : a,b 구하는건 함수로
@@ -179,10 +198,10 @@ void update_brightness_and_constrast(int brightnessValue, int constrastValue)
 		b = a*imginfo.trackbar.brightness+delta;
 	}
 	
-	cv::multiply(imginfo.bgrImg,a-1,imginfo.filter.diff);
-	cv::subtract(imginfo.resImg,imginfo.filter.diff,imginfo.resImg);
+	cv::multiply(imginfo.bgr_img,a-1,imginfo.filter.diff);
+	cv::subtract(imginfo.res_img,imginfo.filter.diff,imginfo.res_img);
 	imginfo.filter.diff.setTo(b);
-	cv::subtract(imginfo.resImg,imginfo.filter.diff,imginfo.resImg);
+	cv::subtract(imginfo.res_img,imginfo.filter.diff,imginfo.res_img);
 
 
 	if(constrastValue>0){
@@ -197,10 +216,10 @@ void update_brightness_and_constrast(int brightnessValue, int constrastValue)
 		b = a*brightnessValue+delta;
 	}
 
-	cv::multiply(imginfo.bgrImg,a-1,imginfo.filter.diff);
-	cv::add(imginfo.resImg,imginfo.filter.diff,imginfo.resImg);
+	cv::multiply(imginfo.bgr_img,a-1,imginfo.filter.diff);
+	cv::add(imginfo.res_img,imginfo.filter.diff,imginfo.res_img);
 	imginfo.filter.diff.setTo(b);
-	cv::add(imginfo.resImg,imginfo.filter.diff,imginfo.resImg);
+	cv::add(imginfo.res_img,imginfo.filter.diff,imginfo.res_img);
 
 
 	//brightnessValue -= BRIGHTNESS_MID;
@@ -293,7 +312,7 @@ void update_gamma(int pos)
 	// cv::imshow("Gamma",newImg);
 }
 
-//
+
 void update_grain(int pos)
 {
 	imginfo.filter.diff = imginfo.filter.grain_mask.clone();
