@@ -6,6 +6,12 @@
 
 #IncludeRegexTransform: 
 
+/Users/doroddong/Desktop/Capstone_Project/aurora_filter/core.cpp
+define.h
+/Users/doroddong/Desktop/Capstone_Project/aurora_filter/define.h
+header.h
+/Users/doroddong/Desktop/Capstone_Project/aurora_filter/header.h
+
 /Users/doroddong/Desktop/Capstone_Project/aurora_filter/define.h
 
 /Users/doroddong/Desktop/Capstone_Project/aurora_filter/header.h
@@ -17,18 +23,18 @@ opencv2/core/utility.hpp
 -
 opencv2/core/ocl.hpp
 -
+opencv2/core.hpp
+-
+iomanip
+-
+stdlib.h
+-
 opencv2/imgproc/imgproc.hpp
 -
 opencv2/highgui/highgui.hpp
 -
 iostream
 -
-
-/Users/doroddong/Desktop/Capstone_Project/aurora_filter/main.cpp
-define.h
-/Users/doroddong/Desktop/Capstone_Project/aurora_filter/define.h
-header.h
-/Users/doroddong/Desktop/Capstone_Project/aurora_filter/header.h
 
 /usr/local/Cellar/opencv/4.2.0_3/include/opencv4/opencv2/calib3d.hpp
 opencv2/core.hpp
