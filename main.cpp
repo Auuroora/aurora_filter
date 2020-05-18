@@ -49,13 +49,16 @@ void init(Mat &img)
 
 	//Vignette
 	Mat kernel_x,kernel_x_transpose, kernel_y, kernel_res;
-	kernel_x = cv::getGaussianKernel(imginfo.col, 1000);
-	kernel_y = cv::getGaussianKernel(imginfo.row, 1000);
+	kernel_x = cv::getGaussianKernel(imginfo.col, 1000,CV_32F);
+	kernel_y = cv::getGaussianKernel(imginfo.row, 1000,CV_32F);
 	cv::transpose(kernel_x, kernel_x_transpose);
 	kernel_res = (kernel_y * kernel_x_transpose);
-	cv::normalize(kernel_res, kernel_res, 0, 1, NORM_MINMAX);
+	// cout<<kernel_res*10000<<endl;
+	imshow("11",kernel_res*1000000);
+	cv::normalize(kernel_res, kernel_res, 0, 50, NORM_MINMAX);
+
+	imshow("22",kernel_res);
 	imginfo.filter.gaussian_kernel = kernel_res.clone();				//getUMat(cv::ACCESS_RW);
-	imginfo.filter.gaussian_kernel=kernel_res.clone();
 	kernel_x.deallocate();
 	kernel_x_transpose.deallocate();
 	kernel_y.deallocate();
