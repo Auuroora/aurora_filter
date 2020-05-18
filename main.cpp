@@ -8,37 +8,71 @@ WorkingImgInfo imginfo;
 
 void init(Mat &img)
 {
-	// save original Image
-	imginfo.set_origin_img(img);
+	/*********************************************************************
+	*	convert and setting
+	*********************************************************************/
+	/* save original Image */
+	imginfo.setOriginImg(img);
 
-	// downsizing
-	imginfo.downsized_img = img.clone();			//.getMat(ACCESS_RW);
-	imginfo.row = imginfo.downsized_img.rows;		//height
-	imginfo.col = imginfo.downsized_img.cols;		//width
-	// TO DO
+	/* downsizing */
 
-	// convert to 3 channels(BGRA -> BGR)
-	if (imginfo.downsized_img.channels() == 4)
-	{
-		cv::cvtColor(imginfo.downsized_img, imginfo.downsized_img, COLOR_BGRA2BGR);
+	//downsizing(img, imginfo.image.downsized, imginfo.row, imginfo.col);
+
+	imginfo.image.downsized = img.clone();
+	imginfo.row = imginfo.image.downsized.rows;
+	imginfo.col = imginfo.image.downsized.cols;
+
+	/* convert to 3 channels(BGRA -> BGR) */
+	if (imginfo.image.downsized.channels() == 4) {
+		cv::cvtColor(imginfo.image.downsized, imginfo.image.downsized, COLOR_BGRA2BGR);
 	}
 
-	// setting img
-	//imginfo.bgr_img = imginfo.downsized_img.clone();
-	imginfo.bgr_img = imginfo.downsized_img.clone();
-	imginfo.res_img = imginfo.downsized_img.clone();
-	cv::cvtColor(imginfo.bgr_img, imginfo.hsv_img, COLOR_BGR2HSV);
-	cv::split(imginfo.bgr_img, imginfo.filter.bgr_filters);
-	cv::split(imginfo.hsv_img, imginfo.filter.hsv_filters);
+	/*********************************************************************
+	*	variable initialize
+	*********************************************************************/
+	/* setting img */
+	imginfo.image.bgr = imginfo.image.downsized.clone();
+	cv::cvtColor(imginfo.image.bgr, imginfo.image.hls, COLOR_BGR2HLS);
+	cv::cvtColor(imginfo.image.bgr, imginfo.image.hsv, COLOR_BGR2HSV);
 
-	//split img
-	cv::split(imginfo.downsized_img, imginfo.bgr_split);
-	cv::split(imginfo.hsv_img, imginfo.hsv_split);
+	cv::split(imginfo.image.bgr, imginfo.image.bgr_origins);
+	cv::split(imginfo.image.hls, imginfo.image.hls_origins);
+	cv::split(imginfo.image.hsv, imginfo.image.hsv_origins);
+
+	Mat mask;
+	cv::inRange(imginfo.image.hls_origins[Cind::S], 0, 0, mask);
+	imginfo.image.hls_origins[Cind::S].setTo(1, mask);
+	cv::inRange(imginfo.image.hls_origins[Cind::L], 0, 0, mask);
+	imginfo.image.hls_origins[Cind::L].setTo(1, mask);
+
+	cv::inRange(imginfo.image.hsv_origins[Cind::Sat], 0, 0, mask);
+	imginfo.image.hsv_origins[Cind::Sat].setTo(1, mask);
+	cv::inRange(imginfo.image.hsv_origins[Cind::Val], 0, 0, mask);
+	imginfo.image.hsv_origins[Cind::Val].setTo(1, mask);
+
+	/* init diff matrix */
+	imginfo.filter.bgr_filters.resize(3);
+	imginfo.filter.hls_filters.resize(3);
+	imginfo.filter.hsv_filters.resize(3);
+
+	imginfo.filter.bgr_filters[Cind::B] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+	imginfo.filter.bgr_filters[Cind::G] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+	imginfo.filter.bgr_filters[Cind::R] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+
+	imginfo.filter.hls_filters[Cind::H] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+	imginfo.filter.hls_filters[Cind::L] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+	imginfo.filter.hls_filters[Cind::S] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+
+	imginfo.filter.hsv_filters[Cind::Hue] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+	imginfo.filter.hsv_filters[Cind::Sat] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+	imginfo.filter.hsv_filters[Cind::Val] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+
+	imginfo.filter.diff = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
 
 	//*******************************************************************************************************
 
 	// Gamma
-	imginfo.filter.hsv_filters[ColorSpaceIndex::V].convertTo(imginfo.filter.gamma_mask, CV_32F);
+	imginfo.filter.hsv_filters[Cind::V].convertTo(imginfo.filter.gamma_mask, CV_32F);
 	cv::multiply(1. / 255, imginfo.filter.gamma_mask, imginfo.filter.gamma_mask);
 
 	//Clarity
@@ -73,35 +107,6 @@ void init(Mat &img)
 	imginfo.filter.exposure_mask = Mat::ones(imginfo.row, imginfo.col, CV_8UC1);
 
 	//*******************************************************************************************************
-
-	// cal minmax
-	cv::minMaxIdx(imginfo.filter.bgr_filters[ColorSpaceIndex::B], &imginfo.min_b, &imginfo.max_b);
-	cv::minMaxIdx(imginfo.filter.bgr_filters[ColorSpaceIndex::G], &imginfo.min_g, &imginfo.max_g);
-	cv::minMaxIdx(imginfo.filter.bgr_filters[ColorSpaceIndex::R], &imginfo.min_r, &imginfo.max_r);
-
-	cv::minMaxIdx(imginfo.filter.hsv_filters[ColorSpaceIndex::H], &imginfo.min_h, &imginfo.max_h);
-	cv::minMaxIdx(imginfo.filter.hsv_filters[ColorSpaceIndex::S], &imginfo.min_s, &imginfo.max_s);
-	cv::minMaxIdx(imginfo.filter.hsv_filters[ColorSpaceIndex::V], &imginfo.min_v, &imginfo.max_v);
-
-	// init weight and diff matrix
-	imginfo.weight.hue = Mat::ones(imginfo.row, imginfo.col, CV_32F);
-	imginfo.weight.sat = Mat::ones(imginfo.row, imginfo.col, CV_32F);
-	imginfo.weight.val = Mat::ones(imginfo.row, imginfo.col, CV_32F);
-
-	imginfo.filter.bgr_filters[ColorSpaceIndex::B] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
-	imginfo.filter.bgr_filters[ColorSpaceIndex::G] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
-	imginfo.filter.bgr_filters[ColorSpaceIndex::R] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
-
-	imginfo.filter.hsv_filters[ColorSpaceIndex::H] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
-	imginfo.filter.hsv_filters[ColorSpaceIndex::S] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
-	imginfo.filter.hsv_filters[ColorSpaceIndex::V] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
-
-	imginfo.filter.diff = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
-
-	// make weight matrix
-	// TO DO
-
-	// TO DO
 }
 
 int main()
