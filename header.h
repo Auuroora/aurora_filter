@@ -172,7 +172,7 @@ public:
 
 	Mat get_res_img()
 	{
-		return this->res_img;
+		return this->image.res;
 	}
 
 private:
