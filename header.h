@@ -208,16 +208,16 @@ void update_vignette(int pos);
 // test.cpp
 void mouse_callback(int event, int x, int y, int flags, void *userdata);
 
-void onchange_hue(int pos, void *ptr);
-void onchange_saturation(int v, void *ptr);
-void onchange_lightness(int v, void *ptr);
-void onchange_temperature(int v, void *ptr);
-void onchange_vibrance(int v, void *ptr);
+void on_change_hue(int pos, void *ptr);
+void on_change_saturation(int v, void *ptr);
+void on_change_lightness(int v, void *ptr);
+void on_change_temperature(int v, void *ptr);
+void on_change_vibrance(int v, void *ptr);
 
-void onchange_highlight_saturation(int curPos, void *ptr);
-void onchange_highlight_hue(int curPos, void *ptr);
-void onchange_shadow_hue(int curPos, void *ptr);
-void onchange_shadow_saturation(int curPos, void *ptr);
+void on_change_highlight_saturation(int curPos, void *ptr);
+void on_change_highlight_hue(int curPos, void *ptr);
+void on_change_shadow_hue(int curPos, void *ptr);
+void on_change_shadow_saturation(int curPos, void *ptr);
 
 void on_change_tint(int pos, void *ptr);
 void on_change_grain(int pos, void *ptr);

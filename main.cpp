@@ -90,18 +90,13 @@ void init(Mat &img)
 	kernel_y = cv::getGaussianKernel(imginfo.row, 1000,CV_32F);
 	cv::transpose(kernel_x, kernel_x_transpose);
 	kernel_res = (kernel_y * kernel_x_transpose);
-	cv::normalize(kernel_res, kernel_res, 0,1, NORM_MINMAX);
+	cv::normalize(kernel_res, kernel_res, 0,1,NORM_MINMAX);
 	cv::subtract(1,kernel_res,kernel_res);
-	// cout<<kernel_res<<endl;
 	kernel_res = cv::abs(kernel_res);
-	// kernel_res.convertTo(kernel_res,CV_32F);
-	// imginfoi.mage.hsv_origins[HSVIndex::V].convertTo(imginfo.image.hsv_origins[HSVIndex::V],CV_32F);
-	// cv::multiply(kernel_res,100,kernel_res,0.01,CV_32F);
-	// imginfo.image.hsv_origins[HSVIndex::V].convertTo(imginfo.image.hsv_origins[HSVIndex::V],CV_8U);
 	cv::multiply(125,kernel_res,kernel_res);
 	kernel_res.convertTo(kernel_res,CV_16S);
 	imginfo.filter.gaussian_kernel = kernel_res.clone();				//getUMat(cv::ACCESS_RW);
-	// cout<<kernel_res<<endl;
+	
 	kernel_x.deallocate();
 	kernel_x_transpose.deallocate();
 	kernel_y.deallocate();
@@ -109,10 +104,7 @@ void init(Mat &img)
 
 	//Grain
 	imginfo.filter.grain_mask = Mat::zeros(imginfo.row, imginfo.col, CV_32F);
-
 	cv::randu(imginfo.filter.grain_mask, Scalar(-20), Scalar(20));
-	// imginfo.filter.salt_mask = Mat(imginfo.col, imginfo.row, CV_8U);
-	// imginfo.filter.pepper_mask = Mat(imginfo.col, imginfo.row, CV_8U);
 
 	//Exposure
 	imginfo.filter.exposure_mask = Mat::ones(imginfo.row, imginfo.col, CV_8UC1);
