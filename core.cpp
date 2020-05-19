@@ -271,16 +271,16 @@ void update_brightness_and_constrast(int brightness_pos, int constrast_pos)
 		b = a * imginfo.trackbar.brightness + delta;
 	}
 
-	cv::multiply(imginfo.bgr_split[BGRIndex::B], a - 1, imginfo.filter.diff);
+	cv::multiply(imginfo.image.bgr_origins[BGRIndex::B], a - 1, imginfo.filter.diff);
 	imginfo.filter.diff.convertTo(imginfo.filter.diff,CV_16S);
 	cv::subtract(imginfo.filter.bgr_filters[BGRIndex::B], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRIndex::B]);
 
 
-	cv::multiply(imginfo.bgr_split[BGRIndex::G], a - 1, imginfo.filter.diff);
+	cv::multiply(imginfo.image.bgr_origins[BGRIndex::G], a - 1, imginfo.filter.diff);
 	imginfo.filter.diff.convertTo(imginfo.filter.diff,CV_16S);
 	cv::subtract(imginfo.filter.bgr_filters[BGRIndex::G], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRIndex::G]);
 
-	cv::multiply(imginfo.bgr_split[BGRIndex::R], a - 1, imginfo.filter.diff);
+	cv::multiply(imginfo.image.bgr_origins[BGRIndex::R], a - 1, imginfo.filter.diff);
 	imginfo.filter.diff.convertTo(imginfo.filter.diff,CV_16S);
 	cv::subtract(imginfo.filter.bgr_filters[BGRIndex::R], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRIndex::R]);
 
@@ -302,16 +302,16 @@ void update_brightness_and_constrast(int brightness_pos, int constrast_pos)
 		b = a * brightness_pos + delta;
 	}
 
-	cv::multiply(imginfo.bgr_split[BGRIndex::B], a - 1, imginfo.filter.diff);
+	cv::multiply(imginfo.image.bgr_origins[BGRIndex::B], a - 1, imginfo.filter.diff);
 	imginfo.filter.diff.convertTo(imginfo.filter.diff,CV_16S);
 	cv::add(imginfo.filter.bgr_filters[BGRIndex::B], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRIndex::B]);
 
 
-	cv::multiply(imginfo.bgr_split[BGRIndex::G], a - 1, imginfo.filter.diff);
+	cv::multiply(imginfo.image.bgr_origins[BGRIndex::G], a - 1, imginfo.filter.diff);
 	imginfo.filter.diff.convertTo(imginfo.filter.diff,CV_16S);
 	cv::add(imginfo.filter.bgr_filters[BGRIndex::G], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRIndex::G]);
 
-	cv::multiply(imginfo.bgr_split[BGRIndex::R], a - 1, imginfo.filter.diff);
+	cv::multiply(imginfo.image.bgr_origins[BGRIndex::R], a - 1, imginfo.filter.diff);
 	imginfo.filter.diff.convertTo(imginfo.filter.diff,CV_16S);
 	cv::add(imginfo.filter.bgr_filters[BGRIndex::R], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRIndex::R]);
 
