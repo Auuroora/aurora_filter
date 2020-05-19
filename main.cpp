@@ -3,46 +3,83 @@
 
 using namespace cv;
 using namespace std;
+using namespace BGR;
+using namespace HSV;
+using namespace HLS;
 
 WorkingImgInfo imginfo;
 
 void init(Mat &img)
 {
-	// save original Image
+	/*********************************************************************
+	*	convert and setting
+	*********************************************************************/
+	/* save original Image */
 	imginfo.set_origin_img(img);
 
-	// downsizing
-	imginfo.downsized_img = img.clone();			//.getMat(ACCESS_RW);
-	imginfo.row = imginfo.downsized_img.rows;		//height
-	imginfo.col = imginfo.downsized_img.cols;		//width
-	// TO DO
+	/* downsizing */
 
-	// convert to 3 channels(BGRA -> BGR)
-	if (imginfo.downsized_img.channels() == 4)
-	{
-		cv::cvtColor(imginfo.downsized_img, imginfo.downsized_img, COLOR_BGRA2BGR);
+	//downsizing(img, imginfo.image.downsized, imginfo.row, imginfo.col);
+
+	imginfo.image.downsized = img.clone();
+	imginfo.row = imginfo.image.downsized.rows;
+	imginfo.col = imginfo.image.downsized.cols;
+
+	/* convert to 3 channels(BGRA -> BGR) */
+	if (imginfo.image.downsized.channels() == 4) {
+		cv::cvtColor(imginfo.image.downsized, imginfo.image.downsized, COLOR_BGRA2BGR);
 	}
 
-	// setting img
-	//imginfo.bgr_img = imginfo.downsized_img.clone();
-	imginfo.bgr_img = imginfo.downsized_img.clone();
-	imginfo.res_img = imginfo.downsized_img.clone();
-	cv::cvtColor(imginfo.bgr_img, imginfo.hsv_img, COLOR_BGR2HSV);
-	cv::split(imginfo.bgr_img, imginfo.filter.bgr_filters);
-	cv::split(imginfo.hsv_img, imginfo.filter.hsv_filters);
+	/*********************************************************************
+	*	variable initialize
+	*********************************************************************/
+	/* setting img */
+	imginfo.image.bgr = imginfo.image.downsized.clone();
+	cv::cvtColor(imginfo.image.bgr, imginfo.image.hls, COLOR_BGR2HLS);
+	cv::cvtColor(imginfo.image.bgr, imginfo.image.hsv, COLOR_BGR2HSV);
 
-	//split img
-	cv::split(imginfo.downsized_img, imginfo.bgr_split);
-	cv::split(imginfo.hsv_img, imginfo.hsv_split);
+	cv::split(imginfo.image.bgr, imginfo.image.bgr_origins);
+	cv::split(imginfo.image.hls, imginfo.image.hls_origins);
+	cv::split(imginfo.image.hsv, imginfo.image.hsv_origins);
+
+	Mat mask;
+	cv::inRange(imginfo.image.hls_origins[HLSIndex::S], 0, 0, mask);
+	imginfo.image.hls_origins[HLSIndex::S].setTo(1, mask);
+	cv::inRange(imginfo.image.hls_origins[HLSIndex::L], 0, 0, mask);
+	imginfo.image.hls_origins[HLSIndex::L].setTo(1, mask);
+
+	cv::inRange(imginfo.image.hsv_origins[HSVIndex::S], 0, 0, mask);
+	imginfo.image.hsv_origins[HSVIndex::S].setTo(1, mask);
+	cv::inRange(imginfo.image.hsv_origins[HSVIndex::V], 0, 0, mask);
+	imginfo.image.hsv_origins[HSVIndex::V].setTo(1, mask);
+
+	/* init diff matrix */
+	imginfo.filter.bgr_filters.resize(3);
+	imginfo.filter.hls_filters.resize(3);
+	imginfo.filter.hsv_filters.resize(3);
+
+	imginfo.filter.bgr_filters[BGRIndex::B] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+	imginfo.filter.bgr_filters[BGRIndex::G] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+	imginfo.filter.bgr_filters[BGRIndex::R] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+
+	imginfo.filter.hls_filters[HLSIndex::H] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+	imginfo.filter.hls_filters[HLSIndex::L] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+	imginfo.filter.hls_filters[HLSIndex::S] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+
+	imginfo.filter.hsv_filters[HSVIndex::H] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+	imginfo.filter.hsv_filters[HSVIndex::S] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+	imginfo.filter.hsv_filters[HSVIndex::V] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
+
+	imginfo.filter.diff = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
 
 	//*******************************************************************************************************
 
 	// Gamma
-	imginfo.filter.hsv_filters[ColorSpaceIndex::V].convertTo(imginfo.filter.gamma_mask, CV_32F);
+	imginfo.filter.hsv_filters[HSVIndex::V].convertTo(imginfo.filter.gamma_mask, CV_32F);
 	cv::multiply(1. / 255, imginfo.filter.gamma_mask, imginfo.filter.gamma_mask);
 
 	//Clarity
-	cv::bilateralFilter(imginfo.bgr_img, imginfo.filter.clarity_filter, DISTANCE, SIGMA_COLOR, SIGMA_SPACE);
+	cv::bilateralFilter(imginfo.image.bgr, imginfo.filter.clarity_filter, DISTANCE, SIGMA_COLOR, SIGMA_SPACE);
 	imginfo.filter.clarity_mask_U = Mat::zeros(imginfo.row, imginfo.col, CV_8UC3);
 	imginfo.filter.clarity_mask_S = Mat::zeros(imginfo.row, imginfo.col, CV_16SC3);
 
@@ -53,17 +90,22 @@ void init(Mat &img)
 	kernel_y = cv::getGaussianKernel(imginfo.row, 1000,CV_32F);
 	cv::transpose(kernel_x, kernel_x_transpose);
 	kernel_res = (kernel_y * kernel_x_transpose);
-	// cout<<kernel_res*10000<<endl;
-	imshow("11",kernel_res*1000000);
-	cv::normalize(kernel_res, kernel_res, 0, 50, NORM_MINMAX);
-
-	imshow("22",kernel_res);
+	cv::normalize(kernel_res, kernel_res, 0,1, NORM_MINMAX);
+	cv::subtract(1,kernel_res,kernel_res);
+	// cout<<kernel_res<<endl;
+	kernel_res = cv::abs(kernel_res);
+	// kernel_res.convertTo(kernel_res,CV_32F);
+	// imginfoi.mage.hsv_origins[HSVIndex::V].convertTo(imginfo.image.hsv_origins[HSVIndex::V],CV_32F);
+	// cv::multiply(kernel_res,100,kernel_res,0.01,CV_32F);
+	// imginfo.image.hsv_origins[HSVIndex::V].convertTo(imginfo.image.hsv_origins[HSVIndex::V],CV_8U);
+	cv::multiply(125,kernel_res,kernel_res);
+	kernel_res.convertTo(kernel_res,CV_16S);
 	imginfo.filter.gaussian_kernel = kernel_res.clone();				//getUMat(cv::ACCESS_RW);
+	// cout<<kernel_res<<endl;
 	kernel_x.deallocate();
 	kernel_x_transpose.deallocate();
 	kernel_y.deallocate();
 	kernel_res.deallocate();
-
 
 	//Grain
 	imginfo.filter.grain_mask = Mat::zeros(imginfo.row, imginfo.col, CV_32F);
@@ -76,35 +118,6 @@ void init(Mat &img)
 	imginfo.filter.exposure_mask = Mat::ones(imginfo.row, imginfo.col, CV_8UC1);
 
 	//*******************************************************************************************************
-
-	// cal minmax
-	cv::minMaxIdx(imginfo.filter.bgr_filters[ColorSpaceIndex::B], &imginfo.min_b, &imginfo.max_b);
-	cv::minMaxIdx(imginfo.filter.bgr_filters[ColorSpaceIndex::G], &imginfo.min_g, &imginfo.max_g);
-	cv::minMaxIdx(imginfo.filter.bgr_filters[ColorSpaceIndex::R], &imginfo.min_r, &imginfo.max_r);
-
-	cv::minMaxIdx(imginfo.filter.hsv_filters[ColorSpaceIndex::H], &imginfo.min_h, &imginfo.max_h);
-	cv::minMaxIdx(imginfo.filter.hsv_filters[ColorSpaceIndex::S], &imginfo.min_s, &imginfo.max_s);
-	cv::minMaxIdx(imginfo.filter.hsv_filters[ColorSpaceIndex::V], &imginfo.min_v, &imginfo.max_v);
-
-	// init weight and diff matrix
-	imginfo.weight.hue = Mat::ones(imginfo.row, imginfo.col, CV_32F);
-	imginfo.weight.sat = Mat::ones(imginfo.row, imginfo.col, CV_32F);
-	imginfo.weight.val = Mat::ones(imginfo.row, imginfo.col, CV_32F);
-
-	imginfo.filter.bgr_filters[ColorSpaceIndex::B] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
-	imginfo.filter.bgr_filters[ColorSpaceIndex::G] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
-	imginfo.filter.bgr_filters[ColorSpaceIndex::R] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
-
-	imginfo.filter.hsv_filters[ColorSpaceIndex::H] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
-	imginfo.filter.hsv_filters[ColorSpaceIndex::S] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
-	imginfo.filter.hsv_filters[ColorSpaceIndex::V] = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
-
-	imginfo.filter.diff = Mat::zeros(imginfo.row, imginfo.col, CV_16S);
-
-	// make weight matrix
-	// TO DO
-
-	// TO DO
 }
 
 int main()
@@ -163,7 +176,7 @@ int main()
 
 	cv::namedWindow(SET_WINDOW, WINDOW_NORMAL);
 	cv::resizeWindow(SET_WINDOW, 1000, 200);
-	cv::imshow(TEST_WINDOW, imginfo.bgr_img);
+	cv::imshow(TEST_WINDOW, imginfo.image.bgr);
 
 	/*********************************************************************
 	*	Make Trackbar
@@ -177,11 +190,11 @@ int main()
 	//setTrackbarPos("Sat", SET_WINDOW, TRACKBAR_MID);
 
 	//// Value
-	cv::createTrackbar("Value", SET_WINDOW, TRACKBAR_MIN, TRACKBAR_MAX, on_change_value);
+	// cv::createTrackbar("Value", SET_WINDOW, TRACKBAR_MIN, TRACKBAR_MAX, on_change_value);
 	cv::setTrackbarPos("Value", SET_WINDOW, TRACKBAR_MID);
 
 	// Temperature
-	cv::createTrackbar("Vibrance", SET_WINDOW, TRACKBAR_MIN, TRACKBAR_MAX, on_change_vibrance);
+	// cv::createTrackbar("Vibrance", SET_WINDOW, TRACKBAR_MIN, TRACKBAR_MAX, on_change_vibrance);
 	cv::setTrackbarPos("Vibrance", SET_WINDOW, TRACKBAR_MID);
 
 	// Grain
