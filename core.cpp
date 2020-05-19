@@ -230,7 +230,8 @@ void update_clarity(int pos)
 	clarity_value = imginfo.trackbar.clarity/(double)10.0;
 	cout<<clarity_value<<endl;
 
-	cv::addWeighted(imginfo.downsized_img,clarity_value,imginfo.filter.clarity_filter,-clarity_value,0,imginfo.filter.clarity_mask_U);
+	cv::addWeighted(imginfo.image.downsized,clarity_value,imginfo.filter.clarity_filter,-clarity_value,0,imginfo.filter.clarity_mask_U);
+	imginfo.filter.clarity_mask_U.convertTo(imginfo.filter.clarity_mask_S,CV_16SC3,0.8);
 	// cout<<imginfo.filter.clarity_mask_U.type()<<endl;
 	cv::split(imginfo.filter.clarity_mask_S,imginfo.filter.clarity_mask_split);
 	cv::subtract(imginfo.filter.bgr_filters[BGRIndex::B], imginfo.filter.clarity_mask_split[BGRIndex::B], imginfo.filter.bgr_filters[BGRIndex::B]);
@@ -240,7 +241,7 @@ void update_clarity(int pos)
 
 	clarity_value = pos/(double)10.0;
 
-	cv::addWeighted(imginfo.downsized_img,clarity_value,imginfo.filter.clarity_filter,-clarity_value,0,imginfo.filter.clarity_mask_U);
+	cv::addWeighted(imginfo.image.downsized,clarity_value,imginfo.filter.clarity_filter,-clarity_value,0,imginfo.filter.clarity_mask_U);
 	// cout<<imginfo.filter.clarity_mask_U.type()<<endl;
 	imginfo.filter.clarity_mask_U.convertTo(imginfo.filter.clarity_mask_S,CV_16SC3,0.8);
 	cv::split(imginfo.filter.clarity_mask_S,imginfo.filter.clarity_mask_split);
