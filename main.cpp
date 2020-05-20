@@ -17,11 +17,13 @@ void init(Mat &img)
 	/* save original Image */
 	imginfo.set_origin_img(img);
 
-	/* downsizing */
+	/* downsizing */     //parameter로 추가
+	imginfo.row = 2400;
+	imginfo.col = 1200;
 
-	//downsizing(img, imginfo.image.downsized, imginfo.row, imginfo.col);
+	downsize_image(img, imginfo.image.downsized, imginfo.row, imginfo.col);
 
-	imginfo.image.downsized = img.clone();
+	// imginfo.image.downsized = img.clone();
 	imginfo.row = imginfo.image.downsized.rows;
 	imginfo.col = imginfo.image.downsized.cols;
 

@@ -44,29 +44,6 @@ namespace HLS{
 	} HLSIndex;	
 }
 
-// enum class BGRIndex :int 
-// {
-// 	B = 0,
-// 	G = 1,
-// 	R = 2,
-// };
-
-// // 색 공간 인덱스
-// enum class HSVIndex :int
-// {
-// 	H = 0,
-// 	S = 1,
-// 	V = 2,
-// };
-
-// // 색 공간 인덱스
-// enum class HLSIndex :int
-// {
-// 	H = 0,
-// 	L = 1,
-// 	S = 2
-// };
-
 // 작업중인 모든 변수 다 여기에
 class WorkingImgInfo
 {
@@ -90,13 +67,6 @@ public:
 		vector<Mat> res_split;
 	} image;
 
-	Mat downsized_img;	  // 다운사이징 후 이미지
-	Mat bgr_img, hsv_img; // bgr이미지, hsv이미지
-	Mat res_img;		  // 최종 결과물
-
-	vector<Mat> bgr_split; //bgrImg를 split한 벡터
-	vector<Mat> hsv_split; //hsvImg를 split한 벡터
-	vector<Mat> res_split;
 	/***********************************************************************************************/
 
 	// filter
@@ -179,13 +149,8 @@ private:
 	Mat origin_img; // 변경 불가한 원본 이미지(다운사이징 전)
 };
 
-// core.cpp
-double calculate_gaussian_normal_distribution(double x, double w, double std, double mu);
-double make_weight_per_color(int color, int val);
-double make_weight_per_saturation(int val, int mu);
-double make_weight_per_value(int val, int mu);
-
-void downsize_image(Mat &src, Mat &dst, int downsized_row, int downsized_col);
+void downsize_image(Mat &src, Mat &dst, int downsizing_row, int downsizing_col);
+void apply_filter();
 void update_hue(int pos);
 void update_saturation(int pos);
 void update_lightness(int pos);
@@ -195,14 +160,13 @@ void update_highlight_saturation(int pos);
 void update_highlight_hue(int pos);
 void update_shadow_hue(int pos);
 void update_shadow_saturation(int pos);
-void apply_filter();
 
 void update_tint(int pos);
-void update_grain(int pos);
 void update_clarity(int pos);
 void update_brightness_and_constrast(int brightness_pos, int constrast_pos);
 void update_exposure(int pos);
 void update_gamma(int pos);
+void update_grain(int pos);
 void update_vignette(int pos);
 
 // test.cpp
@@ -220,12 +184,12 @@ void on_change_shadow_hue(int curPos, void *ptr);
 void on_change_shadow_saturation(int curPos, void *ptr);
 
 void on_change_tint(int pos, void *ptr);
-void on_change_grain(int pos, void *ptr);
 void on_change_clarity(int pos, void *ptr);
 void on_change_bright(int pos, void *ptr);
 void on_change_constrast(int pos, void *ptr);
 void on_change_exposure(int pos, void *ptr);
 void on_change_gamma(int pos, void *ptr);
+void on_change_grain(int pos, void *ptr);
 void on_change_vignette(int pos, void *ptr);
 
 extern WorkingImgInfo imginfo;

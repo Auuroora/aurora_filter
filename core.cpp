@@ -7,10 +7,13 @@ using namespace BGR;
 using namespace HSV;
 using namespace HLS;
 
-void downsize_image(Mat &src, Mat &dst, int downsized_row, int downsized_col) {
-	if (src.rows >= downsized_row && src.cols >= downsized_col) {
-		resize(src, dst, Size(downsized_row, downsized_col), 0, 0, INTER_LINEAR);
+void downsize_image(Mat &src, Mat &dst, int downsizing_row, int downsizeing_col) {
+	
+	//원래 이미지의 크기가 리사이즈할 크기보다 클 경우
+	if (src.rows > downsizing_row || src.cols > downsizeing_col) {
+		resize(src, dst, Size(downsizing_row, downsizeing_col), 0, 0, INTER_AREA);
 	}
+	//원래 이미지의 크기가 리사이즈할 크기보다 작은 경우
 	else {
 		dst = src.clone();
 	}

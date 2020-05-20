@@ -17,7 +17,7 @@ void mouse_callback(int event, int x, int y, int flags, void *userdata)
 	switch (event)
 	{
 	case EVENT_LBUTTONDOWN:
-		imshow(TEST_WINDOW, imginfo.downsized_img);
+		imshow(TEST_WINDOW, imginfo.image.downsized);
 		break;
 
 	case EVENT_LBUTTONUP:
