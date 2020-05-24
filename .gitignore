@@ -1,9 +1,14 @@
 *.jpg
 *.txt
 *.png
-
 .vscode
 CMakeFiles
 aurora_filter
 Makefile
 *.cmake
+
+img
+x64
+OpenCV Test.vcxproj
+OpenCV Test.vcxproj.filters
+OpenCV Test.vcxproj.user
