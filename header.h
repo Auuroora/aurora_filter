@@ -29,10 +29,10 @@ enum class HLS {
 double GND(double x, double w, double std, double mu);
 void downsize_image(cv::Mat &src, cv::Mat &dst, int downsizedRow, int downsizedCol);
 void mouse_callback(int event, int x, int y, int flags, void *userdata);
-double weight_per_color(int color, int val);
 double weight_per_saturation(int val, int mu);
 double weight_per_value(int val, int mu);
 void apply_filter();
+cv::Mat get_preview_image(cv::Mat& img, cv::Mat logo);
 
 // change hls
 void update_hue(int pos);
@@ -92,23 +92,24 @@ public:
 	/*********************************************************************
 	*	variable and struct
 	*********************************************************************/
-	int row;							// 다운사이징 후 사진 가로
-	int col;							// 다운사이징 후 사진 세로
+	int row;									// 다운사이징 후 사진 가로
+	int col;									// 다운사이징 후 사진 세로
 	int changed_color_space;
 
 	struct Image {
-		cv::Mat downsized;					// 다운사이징 후 이미지
-		cv::Mat bgr, hls, hsv, res;			// bgr이미지, hsv이미지, 최종 결과물
+		cv::Mat downsized;						// 다운사이징 후 이미지
+		cv::Mat bgr, hls, hsv, res;				// bgr이미지, hsv이미지, 최종 결과물
+		cv::Mat logo;
 		std::vector<cv::Mat> bgr_origins;		// split한 벡터(bgr)
 		std::vector<cv::Mat> hls_origins;		// split한 벡터(hls)
 		std::vector<cv::Mat> hsv_origins;		// split한 벡터(hsv)
 	} image;
 
 	struct Filter {
-		cv::Mat diff;						// 필터 연산을 위한 행렬
-		cv::Mat bgr_filter;					// bgr변경치가 기록되어 있는 필터
-		cv::Mat hls_filter;					// hls변경치가 기록되어 있는 필터
-		cv::Mat hsv_filter;					// hsv변경치가 기록되어 있는 필터
+		cv::Mat diff;							// 필터 연산을 위한 행렬
+		cv::Mat bgr_filter;						// bgr변경치가 기록되어 있는 필터
+		cv::Mat hls_filter;						// hls변경치가 기록되어 있는 필터
+		cv::Mat hsv_filter;						// hsv변경치가 기록되어 있는 필터
 
 		cv::Mat clarity_filter;
 		cv::Mat clarity_mask_U;
@@ -173,7 +174,7 @@ public:
 	/* image initialize */
 	void init_image(int downsized_row, int downsized_col) {
 		/* downsizing */
-		downsizing(this->originImg, this->image.downsized, downsized_row, downsized_col);
+		downsize_image(this->originImg, this->image.downsized, downsized_row, downsized_col);
 		this->row = this->image.downsized.rows;
 		this->col = this->image.downsized.cols;
 
@@ -184,6 +185,9 @@ public:
 		}
 		cv::cvtColor(this->image.bgr, this->image.hls, cv::COLOR_BGR2HLS);
 		cv::cvtColor(this->image.bgr, this->image.hsv, cv::COLOR_BGR2HSV);
+
+		this->image.logo = cv::imread("./img/aurora_wartermark.png", cv::IMREAD_COLOR);
+		cv::resize(this->image.logo, this->image.logo, cv::Size(this->col, this->row), 0, 0, cv::INTER_AREA);
 	}
 
 	/* filter matrix initialize */
@@ -314,7 +318,7 @@ public:
 	};
 };
 
-extern class ParallelMakeWeight : public cv::ParallelLoopBody {
+class ParallelMakeWeight : public cv::ParallelLoopBody {
 private:
 	cv::Mat& src;
 	cv::Mat& weight_mat;

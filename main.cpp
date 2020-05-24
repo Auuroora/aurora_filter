@@ -37,21 +37,19 @@ int main() {
 	/*********************************************************************
 	*	Init
 	*********************************************************************/
-	cv::Mat inputImg = cv::imread("test8.jpg", cv::IMREAD_COLOR);
+	cv::Mat inputImg = cv::imread("./img/test10.jpg", cv::IMREAD_COLOR);
 	if (inputImg.empty()) {
 		std::cout << "Image Open Failed" << std::endl;
 		return -1;
 	}
 
-	printf("origin size: %d x %d\n", inputImg.rows, inputImg.cols);
 	imginfo.init_all(inputImg, 900, 600);
-	printf("downsize size: %d x %d\n", imginfo.row, imginfo.col);
 	/*********************************************************************
 	*	Make Window
 	*********************************************************************/
 	cv::namedWindow(TEST_WINDOW, cv::WINDOW_NORMAL);
 	cv::resizeWindow(TEST_WINDOW, 400, 600);
-	//setMouseCallback(TEST_WINDOW, mouseCallback, &imginfo.resImg);
+	cv::setMouseCallback(TEST_WINDOW, mouse_callback, &imginfo.image.res);
 
 	cv::namedWindow(SET_WINDOW, cv::WINDOW_NORMAL);
 	cv::resizeWindow(SET_WINDOW, 500, 200);
@@ -79,6 +77,10 @@ int main() {
 	//Temperature
 	cv::createTrackbar("temperature", SET_WINDOW, TRACKBAR_MIN, TRACKBAR_MAX, on_change_temperature);
 	cv::setTrackbarPos("temperature", SET_WINDOW, TRACKBAR_MID);
+
+	// tint
+	cv::createTrackbar("tint", SET_WINDOW, TRACKBAR_MIN, TRACKBAR_MAX, on_change_tint);
+	cv::setTrackbarPos("tint", SET_WINDOW, TRACKBAR_MID);
 
 	// Vibrance
 	cv::createTrackbar("vibrance", SET_WINDOW, TRACKBAR_MIN, TRACKBAR_MAX, on_change_vibrance);

@@ -5,23 +5,6 @@ double GND(double x, double w, double std, double mu = 0) {
 	return w * pow(EXP, -((x - mu)*(x - mu)) / (2*std*std)) / sqrt(2*PI*std*std);
 }
 
-double weight_per_color(int color, int val) {
-	if (color == RED && val > 160) val -= 180;
-
-	switch (color) {
-	case RED:
-		if(val < 0) return GND(abs(color - val), 80.0, 9.0);
-		else return GND(abs(color - val), 40.0, 4.5);
-		
-	case ORANGE:	return GND(abs(color - val), 45.0, 7.0);
-	case YELLOW:	return GND(abs(color - val), 40.0, 7.5);
-	case GREEN:		return GND(abs(color - val), 120, 14);
-	case BLUE:		return GND(abs(color - val), 120, 14);
-	case VIOLET:	return GND(abs(color - val), 110, 12);
-	}
-	return 0;
-}
-
 double weight_per_saturation(int val, int mu) {
 	return GND((double)val, 200.0, 50.0, (double)mu);
 }
@@ -32,11 +15,17 @@ double weight_per_value(int val, int mu) {
 
 void downsize_image(cv::Mat &src, cv::Mat &dst, int downsizedRow, int downsizedCol) {
 	if (src.rows >= downsizedRow && src.cols >= downsizedCol) {
-		resize(src, dst, cv::Size(downsizedRow, downsizedCol), 0, 0, cv::INTER_AREA);
+		cv::resize(src, dst, cv::Size(downsizedCol, downsizedRow), 0, 0, cv::INTER_AREA);
 	}
 	else {
 		dst = src.clone();
 	}
+}
+
+cv::Mat get_preview_image(cv::Mat& img, cv::Mat logo) {
+	cv::Mat res = img.clone();
+	cv::addWeighted(img, 1, logo, 0.3, 0, res);
+	return res;
 }
 
 /*****************************************************************************
@@ -44,7 +33,27 @@ void downsize_image(cv::Mat &src, cv::Mat &dst, int downsizedRow, int downsizedC
 *	add bgr filter -> convert to hsv -> add hsv filter -> convert to bgr(res)
 *****************************************************************************/
 void apply_filter() {
-	switch (imginfo.changed_color_space) {
+	imginfo.image.hls.convertTo(imginfo.image.hls, CV_16SC3);
+	imginfo.image.bgr.convertTo(imginfo.image.bgr, CV_16SC3);
+	
+	// hls
+	cv::merge(imginfo.filter.hls_filters, imginfo.filter.hls_filter);
+	imginfo.image.res.convertTo(imginfo.image.res, CV_16SC3);
+	cv::add(imginfo.image.hls, imginfo.filter.hls_filter, imginfo.image.res); /**/
+	imginfo.image.res.convertTo(imginfo.image.res, CV_8UC3);
+
+	// bgr
+	cv::cvtColor(imginfo.image.res, imginfo.image.res, cv::COLOR_HLS2BGR);
+	cv::merge(imginfo.filter.bgr_filters, imginfo.filter.bgr_filter);
+
+	imginfo.image.res.convertTo(imginfo.image.res, CV_16SC3);
+	cv::add(imginfo.image.res, imginfo.filter.bgr_filter, imginfo.image.res);
+	imginfo.image.res.convertTo(imginfo.image.res, CV_8UC3);
+
+	imginfo.image.bgr.convertTo(imginfo.image.bgr, CV_8UC3);
+	imginfo.image.hls.convertTo(imginfo.image.hls, CV_8UC3);
+
+	/*switch (imginfo.changed_color_space) {
 	case BGR_CHANGED:
 		imginfo.image.bgr.convertTo(imginfo.image.bgr, CV_16SC3);
 		cv::merge(imginfo.filter.bgr_filters, imginfo.filter.bgr_filter);
@@ -67,7 +76,7 @@ void apply_filter() {
 		imginfo.image.res.convertTo(imginfo.image.res, CV_8UC3);
 		cv::cvtColor(imginfo.image.res, imginfo.image.res, cv::COLOR_HSV2BGR);
 		break;
-	}
+	}*/
 }
 
 void update_hue(int pos) {
@@ -214,10 +223,10 @@ void update_shadow_saturation(int pos) {
 /*********************************************************************
 *	이하 동훈이 코드
 *********************************************************************/
-void update_tint(int pos)
-{
-	imginfo.filter.diff.setTo((pos - imginfo.trackbar.tint) / 5.0);
+void update_tint(int pos) {
+	imginfo.filter.diff.setTo((pos - imginfo.trackbar.tint));
 	cv::add(imginfo.filter.bgr_filters[BGRINDEX::G], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::G]);
+
 	imginfo.trackbar.tint = pos;
 	imginfo.changed_color_space = BGR_CHANGED;
 }
@@ -234,7 +243,6 @@ void update_clarity(int pos)
 	cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::B], imginfo.filter.clarity_mask_split[BGRINDEX::B], imginfo.filter.bgr_filters[BGRINDEX::B]);
 	cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::G], imginfo.filter.clarity_mask_split[BGRINDEX::G], imginfo.filter.bgr_filters[BGRINDEX::G]);
 	cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::R], imginfo.filter.clarity_mask_split[BGRINDEX::R], imginfo.filter.bgr_filters[BGRINDEX::R]);
-
 
 	clarity_value = pos / (double)10.0;
 

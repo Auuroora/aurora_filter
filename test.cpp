@@ -6,10 +6,11 @@
 *********************************************************************/
 void mouse_callback(int event, int x, int y, int flags, void *userdata) {
 	cv::Mat* img = static_cast<cv::Mat*>(userdata);
+	cv::Mat res;
 
 	switch (event) {
 	case cv::EVENT_LBUTTONDOWN:
-		cv::imshow(TEST_WINDOW, imginfo.image.downsized);
+		cv::imshow(TEST_WINDOW, get_preview_image(*img, imginfo.image.logo));
 		break;
 
 	case cv::EVENT_LBUTTONUP:
@@ -17,14 +18,6 @@ void mouse_callback(int event, int x, int y, int flags, void *userdata) {
 		break;
 
 	case cv::EVENT_MOUSEMOVE:
-		if (img->channels() == 1) {
-			std::cout << "S: " << (int)img->at<uchar>(y, x) << std::endl;
-		}
-		if (img->channels() == 3) {
-			std::cout << "H: " << (int)img->at<cv::Vec3b>(y, x)[0];
-			std::cout << " S: " << (int)img->at<cv::Vec3b>(y, x)[1];
-			std::cout << " V: " << (int)img->at<cv::Vec3b>(y, x)[2] << std::endl;
-		}
 		break;
 	}
 }
