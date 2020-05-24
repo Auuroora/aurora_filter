@@ -187,7 +187,7 @@ public:
 		cv::cvtColor(this->image.bgr, this->image.hls, cv::COLOR_BGR2HLS);
 		cv::cvtColor(this->image.bgr, this->image.hsv, cv::COLOR_BGR2HSV);
 
-		this->image.logo = cv::imread("aurora_wartermark.png", cv::IMREAD_COLOR);
+		this->image.logo = cv::imread("./img/aurora_wartermark.png", cv::IMREAD_COLOR);
 		cv::resize(this->image.logo, this->image.logo, cv::Size(this->col, this->row), 0, 0, cv::INTER_AREA);
 	}
 

@@ -37,7 +37,7 @@ int main() {
 	/*********************************************************************
 	*	Init
 	*********************************************************************/
-	cv::Mat inputImg = cv::imread("test10.jpg", cv::IMREAD_COLOR);
+	cv::Mat inputImg = cv::imread("./img/test10.jpg", cv::IMREAD_COLOR);
 	if (inputImg.empty()) {
 		std::cout << "Image Open Failed" << std::endl;
 		return -1;
