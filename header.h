@@ -10,6 +10,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
+#include "define.h"
 
 // 색 공간 인덱스
 enum class BGR {
@@ -26,7 +27,7 @@ enum class HLS {
 
 // Utils
 double GND(double x, double w, double std, double mu);
-void downsizing(cv::Mat &src, cv::Mat &dst, int downsizedRow, int downsizedCol);
+void downsize_image(cv::Mat &src, cv::Mat &dst, int downsizedRow, int downsizedCol);
 void mouse_callback(int event, int x, int y, int flags, void *userdata);
 double weight_per_color(int color, int val);
 double weight_per_saturation(int val, int mu);
@@ -68,13 +69,12 @@ void on_change_bright(int pos, void *ptr);
 void update_tint(int pos);
 void on_change_tint(int pos, void *ptr);
 
-void update_constrast(int brightnessValue, int constrastValue);
 void on_change_constrast(int pos, void *ptr);
 
 void update_clarity(int pos);
 void on_change_clarity(int pos, void *ptr);
 
-void upadate_exposure(int pos);
+void update_exposure(int pos);
 void update_gamma(int pos);
 void update_grain(int pos);
 void update_vignette(int pos);
@@ -144,6 +144,9 @@ public:
 		int highlight_hue;
 		int highlight_sat;
 
+		int shadow_hue;
+		int shadow_sat;
+		
 		int tint;
 		int clarity;
 		int exposure;
@@ -261,6 +264,8 @@ public:
 		this->trackbar.vibrance = pos;
 		this->trackbar.highlight_hue = pos;
 		this->trackbar.highlight_sat = pos;
+		this->trackbar.shadow_hue = pos;
+		this->trackbar.shadow_sat = pos;
 		this->trackbar.tint = pos;
 		this->trackbar.clarity = pos;
 		this->trackbar.exposure = pos;
@@ -317,7 +322,7 @@ private:
 	double(*weight_func)(int, int);
 
 public:
-	ParallelMakeWeight(cv::Mat &i, cv::Mat &w, double(*wF)(int, int))
+	ParallelMakeWeight(cv::Mat &i, cv::Mat &w, double(*wF)(int, int)) 
 		: src(i), weight_mat(w), weight_func(wF) {
 		cv::minMaxIdx(src, &min, &max);
 	}

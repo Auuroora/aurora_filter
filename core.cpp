@@ -2,7 +2,7 @@
 #include "header.h"
 
 double GND(double x, double w, double std, double mu = 0) {
-	return w * pow(EXP, -((x - mu)*(x - mu)) / (2 * std*std)) / sqrt(2 * PI*std*std);
+	return w * pow(EXP, -((x - mu)*(x - mu)) / (2*std*std)) / sqrt(2*PI*std*std);
 }
 
 double weight_per_color(int color, int val) {
@@ -10,9 +10,9 @@ double weight_per_color(int color, int val) {
 
 	switch (color) {
 	case RED:
-		if (val < 0) return GND(abs(color - val), 80.0, 9.0);
+		if(val < 0) return GND(abs(color - val), 80.0, 9.0);
 		else return GND(abs(color - val), 40.0, 4.5);
-
+		
 	case ORANGE:	return GND(abs(color - val), 45.0, 7.0);
 	case YELLOW:	return GND(abs(color - val), 40.0, 7.5);
 	case GREEN:		return GND(abs(color - val), 120, 14);
@@ -30,9 +30,9 @@ double weight_per_value(int val, int mu) {
 	return GND((double)val, 200.0, 50.0, (double)mu);
 }
 
-void downsizing(cv::Mat &src, cv::Mat &dst, int downsizedRow, int downsizedCol) {
+void downsize_image(cv::Mat &src, cv::Mat &dst, int downsizedRow, int downsizedCol) {
 	if (src.rows >= downsizedRow && src.cols >= downsizedCol) {
-		resize(src, dst, cv::Size(downsizedRow, downsizedCol), 0, 0, cv::INTER_LINEAR);
+		resize(src, dst, cv::Size(downsizedRow, downsizedCol), 0, 0, cv::INTER_AREA);
 	}
 	else {
 		dst = src.clone();
@@ -96,7 +96,7 @@ void update_lightness(int pos) {
 	imginfo.filter.diff.setTo(pos - imginfo.trackbar.lightness);
 	cv::add(
 		imginfo.filter.hls_filters[HLSINDEX::L],
-		imginfo.filter.diff,
+		imginfo.filter.diff, 
 		imginfo.filter.hls_filters[HLSINDEX::L]
 	);
 	imginfo.trackbar.lightness = pos;
@@ -105,11 +105,11 @@ void update_lightness(int pos) {
 
 void update_temperature(int pos) {
 	imginfo.filter.diff.setTo(abs(imginfo.trackbar.temperature));
-	if (imginfo.trackbar.temperature >= 0)
+	if (imginfo.trackbar.temperature >= 0) 
 		cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::R], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::R]);
-	else
+	else 
 		cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::B], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::B]);
-
+	
 	imginfo.filter.diff.setTo(abs(pos));
 	if (pos >= 0)
 		cv::add(imginfo.filter.bgr_filters[BGRINDEX::R], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::R]);
