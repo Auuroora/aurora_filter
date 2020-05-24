@@ -1,3 +1,0 @@
-/Users/doroddong/Desktop/Capstone_Project/aurora_filter/CMakeFiles/rebuild_cache.dir
-/Users/doroddong/Desktop/Capstone_Project/aurora_filter/CMakeFiles/edit_cache.dir
-/Users/doroddong/Desktop/Capstone_Project/aurora_filter/CMakeFiles/aurora_filter.dir
