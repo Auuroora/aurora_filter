@@ -3,26 +3,30 @@
 
 WorkingImgInfo imginfo;
 
-int main() {
+int main()
+{
 	/*********************************************************************
 	*	OpenCL Test
 	*********************************************************************/
-	// OpenCL을 사용할 수 있는지 테스트 
-	if (!cv::ocl::haveOpenCL()) {
+	// OpenCL을 사용할 수 있는지 테스트
+	if (!cv::ocl::haveOpenCL())
+	{
 		std::cout << "에러 : OpenCL을 사용할 수 없는 시스템입니다." << std::endl;
 		return -1;
 	}
 
 	// 컨텍스트 생성
 	cv::ocl::Context context;
-	if (!context.create(cv::ocl::Device::TYPE_GPU)) {
+	if (!context.create(cv::ocl::Device::TYPE_GPU))
+	{
 		std::cout << " 에러 : 컨텍스트를 생성할 수 없습니다." << std::endl;
 		return -1;
 	}
 
 	// GPU 장치 정보
 	std::cout << context.ndevices() << " GPU device (s) detected " << std::endl;
-	for (size_t i = 0; i < context.ndevices(); i++) {
+	for (size_t i = 0; i < context.ndevices(); i++)
+	{
 		cv::ocl::Device device = context.device(i);
 		std::cout << " - Device " << i << " --- " << std::endl;
 		std::cout << " Name : " << device.name() << std::endl;
@@ -37,8 +41,13 @@ int main() {
 	/*********************************************************************
 	*	Init
 	*********************************************************************/
+	//성수
 	cv::Mat inputImg = cv::imread("./img/test10.jpg", cv::IMREAD_COLOR);
-	if (inputImg.empty()) {
+
+	//동훈
+	//cv::Mat inputImg = cv::imread("2400x1600.jpg", cv::IMREAD_COLOR);
+	if (inputImg.empty())
+	{
 		std::cout << "Image Open Failed" << std::endl;
 		return -1;
 	}
@@ -98,7 +107,8 @@ int main() {
 	cv::createTrackbar("sh", SET_WINDOW, TRACKBAR_MIN, TRACKBAR_MAX, on_change_shadow_hue);
 	cv::setTrackbarPos("sh", SET_WINDOW, TRACKBAR_MID);
 
-	while (cv::waitKey(0) != 27);
+	while (cv::waitKey(0) != 27)
+		;
 	cv::destroyAllWindows();
 	return 0;
 }
