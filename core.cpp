@@ -5,23 +5,6 @@ double GND(double x, double w, double std, double mu = 0) {
 	return w * pow(EXP, -((x - mu)*(x - mu)) / (2*std*std)) / sqrt(2*PI*std*std);
 }
 
-double weight_per_color(int color, int val) {
-	if (color == RED && val > 160) val -= 180;
-
-	switch (color) {
-	case RED:
-		if(val < 0) return GND(abs(color - val), 80.0, 9.0);
-		else return GND(abs(color - val), 40.0, 4.5);
-		
-	case ORANGE:	return GND(abs(color - val), 45.0, 7.0);
-	case YELLOW:	return GND(abs(color - val), 40.0, 7.5);
-	case GREEN:		return GND(abs(color - val), 120, 14);
-	case BLUE:		return GND(abs(color - val), 120, 14);
-	case VIOLET:	return GND(abs(color - val), 110, 12);
-	}
-	return 0;
-}
-
 double weight_per_saturation(int val, int mu) {
 	return GND((double)val, 200.0, 50.0, (double)mu);
 }

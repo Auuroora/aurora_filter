@@ -29,7 +29,6 @@ enum class HLS {
 double GND(double x, double w, double std, double mu);
 void downsize_image(cv::Mat &src, cv::Mat &dst, int downsizedRow, int downsizedCol);
 void mouse_callback(int event, int x, int y, int flags, void *userdata);
-double weight_per_color(int color, int val);
 double weight_per_saturation(int val, int mu);
 double weight_per_value(int val, int mu);
 void apply_filter();
