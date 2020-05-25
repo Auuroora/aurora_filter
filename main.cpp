@@ -1,4 +1,4 @@
-﻿#include "define.h"
+#include "define.h"
 #include "header.h"
 
 WorkingImgInfo imginfo;
@@ -111,4 +111,3 @@ int main()
 		;
 	cv::destroyAllWindows();
 	return 0;
-}

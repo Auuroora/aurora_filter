@@ -16,11 +16,11 @@ double weight_per_value(int val, int mu)
 	return GND((double)val, 200.0, 50.0, (double)mu);
 }
 
-void downsize_image(cv::Mat &src, cv::Mat &dst, int downsizedCol, int downsizedRow)
+void downsize_image(cv::Mat &src, cv::Mat &dst, int downsized_col, int downsized_row)
 {
-	if (src.rows > downsizedRow || src.cols > downsizedCol)
+	if (src.rows > downsized_row || src.cols > downsized_col)
 	{
-		cv::resize(src, dst, cv::Size(downsizedCol, downsizedRow), 0, 0, cv::INTER_AREA);
+		cv::resize(src, dst, cv::Size(downsized_col, downsized_row), 0, 0, cv::INTER_AREA);
 	}
 	else
 	{
@@ -39,268 +39,230 @@ cv::Mat get_preview_image(cv::Mat &img, cv::Mat logo)
 *							applyFilter
 *	add bgr filter -> convert to hsv -> add hsv filter -> convert to bgr(res)
 *****************************************************************************/
-void apply_filter()
+
+void WorkingImgInfo::apply_filter()
 {
-	imginfo.image.hls.convertTo(imginfo.image.hls, CV_16SC3);
-	imginfo.image.bgr.convertTo(imginfo.image.bgr, CV_16SC3);
+	this->image.hls.convertTo(this->image.hls, CV_16SC3);
+	this->image.bgr.convertTo(this->image.bgr, CV_16SC3);
 
 	// hls
-	cv::merge(imginfo.filter.hls_filters, imginfo.filter.hls_filter);
-	imginfo.image.res.convertTo(imginfo.image.res, CV_16SC3);
-	cv::add(imginfo.image.hls, imginfo.filter.hls_filter, imginfo.image.res); /**/
-	imginfo.image.res.convertTo(imginfo.image.res, CV_8UC3);
+	cv::merge(this->filter.hls_filters, this->filter.hls_filter);
+	this->image.res.convertTo(this->image.res, CV_16SC3);
+	cv::add(this->image.hls, this->filter.hls_filter, this->image.res); /**/
+	this->image.res.convertTo(this->image.res, CV_8UC3);
 
 	// bgr
-	cv::cvtColor(imginfo.image.res, imginfo.image.res, cv::COLOR_HLS2BGR);
-	cv::merge(imginfo.filter.bgr_filters, imginfo.filter.bgr_filter);
+	cv::cvtColor(this->image.res, this->image.res, cv::COLOR_HLS2BGR);
+	cv::merge(this->filter.bgr_filters, this->filter.bgr_filter);
 
-	imginfo.image.res.convertTo(imginfo.image.res, CV_16SC3);
-	cv::add(imginfo.image.res, imginfo.filter.bgr_filter, imginfo.image.res);
-	imginfo.image.res.convertTo(imginfo.image.res, CV_8UC3);
+	this->image.res.convertTo(this->image.res, CV_16SC3);
+	cv::add(this->image.res, this->filter.bgr_filter, this->image.res);
+	this->image.res.convertTo(this->image.res, CV_8UC3);
 
-	imginfo.image.bgr.convertTo(imginfo.image.bgr, CV_8UC3);
-	imginfo.image.hls.convertTo(imginfo.image.hls, CV_8UC3);
-	imginfo.image.res = get_preview_image(imginfo.image.res, imginfo.image.logo);
-
-	/*switch (imginfo.changed_color_space) {
-	case BGR_CHANGED:
-		imginfo.image.bgr.convertTo(imginfo.image.bgr, CV_16SC3);
-		cv::merge(imginfo.filter.bgr_filters, imginfo.filter.bgr_filter);
-		cv::add(imginfo.image.bgr, imginfo.filter.bgr_filter, imginfo.image.res);
-		imginfo.image.res.convertTo(imginfo.image.res, CV_8UC3);
-		break;
-
-	case HLS_CHANGED:
-		imginfo.image.hls.convertTo(imginfo.image.res, CV_16SC3);
-		cv::merge(imginfo.filter.hls_filters, imginfo.filter.hls_filter);
-		cv::add(imginfo.image.res, imginfo.filter.hls_filter, imginfo.image.res);
-		imginfo.image.res.convertTo(imginfo.image.res, CV_8UC3);
-		cv::cvtColor(imginfo.image.res, imginfo.image.res, cv::COLOR_HLS2BGR);
-		break;
-
-	case HSV_CHANGED:
-		imginfo.image.hsv.convertTo(imginfo.image.res, CV_16SC3);
-		cv::merge(imginfo.filter.hsv_filters, imginfo.filter.hsv_filter);
-		cv::add(imginfo.image.res, imginfo.filter.hsv_filter, imginfo.image.res);
-		imginfo.image.res.convertTo(imginfo.image.res, CV_8UC3);
-		cv::cvtColor(imginfo.image.res, imginfo.image.res, cv::COLOR_HSV2BGR);
-		break;
-	}*/
+	this->image.bgr.convertTo(this->image.bgr, CV_8UC3);
+	this->image.hls.convertTo(this->image.hls, CV_8UC3);
 }
 
-void update_hue(int pos)
+void WorkingImgInfo::update_hue(int pos)
 {
-	imginfo.filter.diff.setTo(pos - imginfo.trackbar.hue);
+	this->filter.diff.setTo(pos - this->trackbar.hue);
 	cv::add(
-		imginfo.filter.hls_filters[HLSINDEX::H],
-		imginfo.filter.diff,
-		imginfo.filter.hls_filters[HLSINDEX::H]);
-	imginfo.trackbar.hue = pos;
-	imginfo.changed_color_space = HLS_CHANGED;
+		this->filter.hls_filters[HLSINDEX::H],
+		this->filter.diff,
+		this->filter.hls_filters[HLSINDEX::H]);
+	this->trackbar.hue = pos;
 }
 
-void update_saturation(int pos)
+void WorkingImgInfo::update_saturation(int pos)
 {
-	imginfo.filter.diff.setTo(pos - imginfo.trackbar.saturation);
+	this->filter.diff.setTo(pos - this->trackbar.saturation);
 	cv::add(
-		imginfo.filter.hls_filters[HLSINDEX::S],
-		imginfo.filter.diff,
-		imginfo.filter.hls_filters[HLSINDEX::S]);
-	imginfo.trackbar.saturation = pos;
-	imginfo.changed_color_space = HLS_CHANGED;
+		this->filter.hls_filters[HLSINDEX::S],
+		this->filter.diff,
+		this->filter.hls_filters[HLSINDEX::S]);
+	this->trackbar.saturation = pos;
 }
 
-void update_lightness(int pos)
+void WorkingImgInfo::update_lightness(int pos)
 {
-	imginfo.filter.diff.setTo(pos - imginfo.trackbar.lightness);
+	this->filter.diff.setTo(pos - this->trackbar.lightness);
 	cv::add(
-		imginfo.filter.hls_filters[HLSINDEX::L],
-		imginfo.filter.diff,
-		imginfo.filter.hls_filters[HLSINDEX::L]);
-	imginfo.trackbar.lightness = pos;
-	imginfo.changed_color_space = HLS_CHANGED;
+		this->filter.hls_filters[HLSINDEX::L],
+		this->filter.diff,
+		this->filter.hls_filters[HLSINDEX::L]);
+	this->trackbar.lightness = pos;
 }
 
-void update_temperature(int pos)
+void WorkingImgInfo::update_temperature(int pos)
 {
-	imginfo.filter.diff.setTo(abs(imginfo.trackbar.temperature));
-	if (imginfo.trackbar.temperature >= 0)
-		cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::R], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::R]);
+	this->filter.diff.setTo(abs(this->trackbar.temperature));
+	if (this->trackbar.temperature >= 0)
+		cv::subtract(this->filter.bgr_filters[BGRINDEX::R], this->filter.diff, this->filter.bgr_filters[BGRINDEX::R]);
 	else
-		cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::B], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::B]);
+		cv::subtract(this->filter.bgr_filters[BGRINDEX::B], this->filter.diff, this->filter.bgr_filters[BGRINDEX::B]);
 
-	imginfo.filter.diff.setTo(abs(pos));
+	this->filter.diff.setTo(abs(pos));
 	if (pos >= 0)
-		cv::add(imginfo.filter.bgr_filters[BGRINDEX::R], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::R]);
+		cv::add(this->filter.bgr_filters[BGRINDEX::R], this->filter.diff, this->filter.bgr_filters[BGRINDEX::R]);
 	else
-		cv::add(imginfo.filter.bgr_filters[BGRINDEX::B], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::B]);
+		cv::add(this->filter.bgr_filters[BGRINDEX::B], this->filter.diff, this->filter.bgr_filters[BGRINDEX::B]);
 
-	imginfo.trackbar.temperature = pos;
-	imginfo.changed_color_space = BGR_CHANGED;
+	this->trackbar.temperature = pos;
 }
 
-void update_vibrance(int pos)
+void WorkingImgInfo::update_vibrance(int pos)
 {
 	cv::Mat w;
 	cv::divide(
-		imginfo.image.hls_origins[HLSINDEX::L],
-		imginfo.image.hls_origins[HLSINDEX::S],
+		this->image.hls_origins[HLSINDEX::L],
+		this->image.hls_origins[HLSINDEX::S],
 		w,
-		(double)(pos - imginfo.trackbar.vibrance) * 0.05,
+		(double)(pos - this->trackbar.vibrance) * 0.05,
 		CV_16S);
 	cv::add(
-		imginfo.filter.hls_filters[HLSINDEX::S],
+		this->filter.hls_filters[HLSINDEX::S],
 		w,
-		imginfo.filter.hls_filters[HLSINDEX::S]);
+		this->filter.hls_filters[HLSINDEX::S]);
 
-	// º¯°æÄ¡ ¾÷µ¥ÀÌÆ®
-	imginfo.trackbar.vibrance = pos;
-	imginfo.changed_color_space = HLS_CHANGED;
+	// ë³€ê²½ì¹˜ ì—…ë°ì´íŠ¸
+	this->trackbar.vibrance = pos;
 }
 
-void update_highlight_hue(int pos)
+void WorkingImgInfo::update_highlight_hue(int pos)
 {
-	cv::Mat tmp = imginfo.filter.hls_filters[HLSINDEX::H].clone();
+	cv::Mat tmp = this->filter.hls_filters[HLSINDEX::H].clone();
 	cv::addWeighted(
-		(imginfo.image.hls_origins[HLSINDEX::L]),
-		(double)(pos - imginfo.trackbar.highlight_hue) * 0.001,
+		(this->image.hls_origins[HLSINDEX::L]),
+		(double)(pos - this->trackbar.highlight_hue) * 0.001,
 		tmp,
 		1,
 		0,
-		imginfo.filter.hls_filters[HLSINDEX::H],
+		this->filter.hls_filters[HLSINDEX::H],
 		CV_16S);
 
-	// º¯°æÄ¡ ¾÷µ¥ÀÌÆ®
-	imginfo.trackbar.highlight_hue = pos;
-	imginfo.changed_color_space = HLS_CHANGED;
+	// ë³€ê²½ì¹˜ ì—…ë°ì´íŠ¸
+	this->trackbar.highlight_hue = pos;
 }
 
-void update_highlight_saturation(int pos)
+void WorkingImgInfo::update_highlight_saturation(int pos)
 {
-	cv::Mat tmp = imginfo.filter.hls_filters[HLSINDEX::S].clone();
+	cv::Mat tmp = this->filter.hls_filters[HLSINDEX::S].clone();
 	cv::addWeighted(
-		(imginfo.image.hls_origins[HLSINDEX::L]),
-		double(pos - imginfo.trackbar.highlight_sat) * 0.01,
+		(this->image.hls_origins[HLSINDEX::L]),
+		double(pos - this->trackbar.highlight_sat) * 0.01,
 		tmp,
 		1,
 		0,
-		imginfo.filter.hls_filters[HLSINDEX::S],
+		this->filter.hls_filters[HLSINDEX::S],
 		CV_16S);
 
-	// º¯°æÄ¡ ¾÷µ¥ÀÌÆ®
-	imginfo.trackbar.highlight_sat = pos;
-	imginfo.changed_color_space = HLS_CHANGED;
+	// ë³€ê²½ì¹˜ ì—…ë°ì´íŠ¸
+	this->trackbar.highlight_sat = pos;
 }
 
-void update_shadow_hue(int pos)
+void WorkingImgInfo::update_shadow_hue(int pos)
 {
-	cv::Mat tmp = imginfo.filter.hls_filters[HLSINDEX::H].clone();
+	cv::Mat tmp = this->filter.hls_filters[HLSINDEX::H].clone();
 	cv::Mat tmp2;
-	cv::divide(15, imginfo.image.hls_origins[HLSINDEX::L], tmp2, CV_32F);
+	cv::divide(15, this->image.hls_origins[HLSINDEX::L], tmp2, CV_32F);
 
 	cv::addWeighted(
 		(tmp2),
-		double(pos - imginfo.trackbar.highlight_hue),
+		double(pos - this->trackbar.highlight_hue),
 		tmp,
 		1,
 		0,
-		imginfo.filter.hls_filters[HLSINDEX::H],
+		this->filter.hls_filters[HLSINDEX::H],
 		CV_16S);
 
-	// º¯°æÄ¡ ¾÷µ¥ÀÌÆ®
-	imginfo.trackbar.highlight_hue = pos;
-	imginfo.changed_color_space = HLS_CHANGED;
+	// ë³€ê²½ì¹˜ ì—…ë°ì´íŠ¸
+	this->trackbar.highlight_hue = pos;
 }
 
-void update_shadow_saturation(int pos)
+void WorkingImgInfo::update_shadow_saturation(int pos)
 {
-	cv::Mat tmp = imginfo.filter.hls_filters[HLSINDEX::S].clone();
+	cv::Mat tmp = this->filter.hls_filters[HLSINDEX::S].clone();
 	cv::addWeighted(
-		(100 / (imginfo.image.hls_origins[HLSINDEX::L])),
-		(pos - imginfo.trackbar.highlight_sat),
+		(100 / (this->image.hls_origins[HLSINDEX::L])),
+		(pos - this->trackbar.highlight_sat),
 		tmp,
 		1,
 		0,
-		imginfo.filter.hls_filters[HLSINDEX::S],
+		this->filter.hls_filters[HLSINDEX::S],
 		CV_16S);
 
-	// º¯°æÄ¡ ¾÷µ¥ÀÌÆ®
-	imginfo.trackbar.highlight_sat = pos;
-	imginfo.changed_color_space = HLS_CHANGED;
+	// ë³€ê²½ì¹˜ ì—…ë°ì´íŠ¸
+	this->trackbar.highlight_sat = pos;
 }
 
 /*********************************************************************
-*	ÀÌÇÏ µ¿ÈÆÀÌ ÄÚµå
+*	ì´í•˜ ë™í›ˆì´ ì½”ë“œ
 *********************************************************************/
-void update_tint(int pos)
+void WorkingImgInfo::update_tint(int pos)
 {
-	imginfo.filter.diff.setTo((pos - imginfo.trackbar.tint));
-	cv::add(imginfo.filter.bgr_filters[BGRINDEX::G], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::G]);
+	this->filter.diff.setTo((pos - this->trackbar.tint));
+	cv::add(this->filter.bgr_filters[BGRINDEX::G], this->filter.diff, this->filter.bgr_filters[BGRINDEX::G]);
 
-	imginfo.trackbar.tint = pos;
-	imginfo.changed_color_space = BGR_CHANGED;
+	this->trackbar.tint = pos;
 }
 
-void update_clarity(int pos)
+void WorkingImgInfo::update_clarity(int pos)
 {
 	double clarity_value;
-	clarity_value = imginfo.trackbar.clarity / (double)10.0;
+	clarity_value = this->trackbar.clarity / (double)10.0;
 
-	cv::addWeighted(imginfo.image.downsized, clarity_value, imginfo.filter.clarity_filter, -clarity_value, 0, imginfo.filter.clarity_mask_U);
-	imginfo.filter.clarity_mask_U.convertTo(imginfo.filter.clarity_mask_S, CV_16SC3, 0.8);
-	// cout<<imginfo.filter.clarity_mask_U.type()<<endl;
-	cv::split(imginfo.filter.clarity_mask_S, imginfo.filter.clarity_mask_split);
-	cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::B], imginfo.filter.clarity_mask_split[BGRINDEX::B], imginfo.filter.bgr_filters[BGRINDEX::B]);
-	cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::G], imginfo.filter.clarity_mask_split[BGRINDEX::G], imginfo.filter.bgr_filters[BGRINDEX::G]);
-	cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::R], imginfo.filter.clarity_mask_split[BGRINDEX::R], imginfo.filter.bgr_filters[BGRINDEX::R]);
+	cv::addWeighted(this->image.downsized, clarity_value, this->filter.clarity_filter, -clarity_value, 0, this->filter.clarity_mask_U);
+	this->filter.clarity_mask_U.convertTo(this->filter.clarity_mask_S, CV_16SC3, 0.8);
+	cv::split(this->filter.clarity_mask_S, this->filter.clarity_mask_split);
+	cv::subtract(this->filter.bgr_filters[BGRINDEX::B], this->filter.clarity_mask_split[BGRINDEX::B], this->filter.bgr_filters[BGRINDEX::B]);
+	cv::subtract(this->filter.bgr_filters[BGRINDEX::G], this->filter.clarity_mask_split[BGRINDEX::G], this->filter.bgr_filters[BGRINDEX::G]);
+	cv::subtract(this->filter.bgr_filters[BGRINDEX::R], this->filter.clarity_mask_split[BGRINDEX::R], this->filter.bgr_filters[BGRINDEX::R]);
 
 	clarity_value = pos / (double)10.0;
 
-	cv::addWeighted(imginfo.image.downsized, clarity_value, imginfo.filter.clarity_filter, -clarity_value, 0, imginfo.filter.clarity_mask_U);
-	// cout<<imginfo.filter.clarity_mask_U.type()<<endl;
-	imginfo.filter.clarity_mask_U.convertTo(imginfo.filter.clarity_mask_S, CV_16SC3, 0.8);
-	cv::split(imginfo.filter.clarity_mask_S, imginfo.filter.clarity_mask_split);
-	cv::add(imginfo.filter.bgr_filters[BGRINDEX::B], imginfo.filter.clarity_mask_split[BGRINDEX::B], imginfo.filter.bgr_filters[BGRINDEX::B]);
-	cv::add(imginfo.filter.bgr_filters[BGRINDEX::G], imginfo.filter.clarity_mask_split[BGRINDEX::G], imginfo.filter.bgr_filters[BGRINDEX::G]);
-	cv::add(imginfo.filter.bgr_filters[BGRINDEX::R], imginfo.filter.clarity_mask_split[BGRINDEX::R], imginfo.filter.bgr_filters[BGRINDEX::R]);
+	cv::addWeighted(this->image.downsized, clarity_value, this->filter.clarity_filter, -clarity_value, 0, this->filter.clarity_mask_U);
+	this->filter.clarity_mask_U.convertTo(this->filter.clarity_mask_S, CV_16SC3, 0.8);
+	cv::split(this->filter.clarity_mask_S, this->filter.clarity_mask_split);
+	cv::add(this->filter.bgr_filters[BGRINDEX::B], this->filter.clarity_mask_split[BGRINDEX::B], this->filter.bgr_filters[BGRINDEX::B]);
+	cv::add(this->filter.bgr_filters[BGRINDEX::G], this->filter.clarity_mask_split[BGRINDEX::G], this->filter.bgr_filters[BGRINDEX::G]);
+	cv::add(this->filter.bgr_filters[BGRINDEX::R], this->filter.clarity_mask_split[BGRINDEX::R], this->filter.bgr_filters[BGRINDEX::R]);
 
-	imginfo.trackbar.clarity = pos;
-	imginfo.changed_color_space = BGR_CHANGED;
+	this->trackbar.clarity = pos;
 }
 
-// Refactoring : a,b ±¸ÇÏ´Â°Ç ÇÔ¼ö·Î
-void update_brightness_and_constrast(int brightness_pos, int constrast_pos)
+// Refactoring : a,b êµ¬í•˜ëŠ”ê±´ í•¨ìˆ˜ë¡œ
+void WorkingImgInfo::update_brightness_and_constrast(int brightness_pos, int constrast_pos)
 {
 	double a, b;
-	if (imginfo.trackbar.constrast > 0)
+	if (this->trackbar.constrast > 0)
 	{
-		double delta = MAX_7B_F * imginfo.trackbar.constrast / MAX_8B_F;
+		double delta = MAX_7B_F * this->trackbar.constrast / MAX_8B_F;
 		a = MAX_8B_F / (MAX_8B_F - delta * 2);
-		b = a * (imginfo.trackbar.brightness - delta);
+		b = a * (this->trackbar.brightness - delta);
 	}
 	else
 	{
-		double delta = -MAX_7B_F * imginfo.trackbar.constrast / MAX_8B_F;
+		double delta = -MAX_7B_F * this->trackbar.constrast / MAX_8B_F;
 		a = (MAX_8B_F - delta * 2) / MAX_8B_F;
-		b = a * imginfo.trackbar.brightness + delta;
+		b = a * this->trackbar.brightness + delta;
 	}
 
-	cv::multiply(imginfo.image.bgr_origins[BGRINDEX::B], a - 1, imginfo.filter.diff);
-	imginfo.filter.diff.convertTo(imginfo.filter.diff, CV_16S);
-	cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::B], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::B]);
+	cv::multiply(this->image.bgr_origins[BGRINDEX::B], a - 1, this->filter.diff);
+	this->filter.diff.convertTo(this->filter.diff, CV_16S);
+	cv::subtract(this->filter.bgr_filters[BGRINDEX::B], this->filter.diff, this->filter.bgr_filters[BGRINDEX::B]);
 
-	cv::multiply(imginfo.image.bgr_origins[BGRINDEX::G], a - 1, imginfo.filter.diff);
-	imginfo.filter.diff.convertTo(imginfo.filter.diff, CV_16S);
-	cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::G], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::G]);
+	cv::multiply(this->image.bgr_origins[BGRINDEX::G], a - 1, this->filter.diff);
+	this->filter.diff.convertTo(this->filter.diff, CV_16S);
+	cv::subtract(this->filter.bgr_filters[BGRINDEX::G], this->filter.diff, this->filter.bgr_filters[BGRINDEX::G]);
 
-	cv::multiply(imginfo.image.bgr_origins[BGRINDEX::R], a - 1, imginfo.filter.diff);
-	imginfo.filter.diff.convertTo(imginfo.filter.diff, CV_16S);
-	cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::R], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::R]);
+	cv::multiply(this->image.bgr_origins[BGRINDEX::R], a - 1, this->filter.diff);
+	this->filter.diff.convertTo(this->filter.diff, CV_16S);
+	cv::subtract(this->filter.bgr_filters[BGRINDEX::R], this->filter.diff, this->filter.bgr_filters[BGRINDEX::R]);
 
-	imginfo.filter.diff.setTo(b);
-	cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::B], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::B]);
-	cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::G], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::G]);
-	cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::R], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::R]);
+	this->filter.diff.setTo(b);
+	cv::subtract(this->filter.bgr_filters[BGRINDEX::B], this->filter.diff, this->filter.bgr_filters[BGRINDEX::B]);
+	cv::subtract(this->filter.bgr_filters[BGRINDEX::G], this->filter.diff, this->filter.bgr_filters[BGRINDEX::G]);
+	cv::subtract(this->filter.bgr_filters[BGRINDEX::R], this->filter.diff, this->filter.bgr_filters[BGRINDEX::R]);
 
 	if (constrast_pos > 0)
 	{
@@ -315,125 +277,121 @@ void update_brightness_and_constrast(int brightness_pos, int constrast_pos)
 		b = a * brightness_pos + delta;
 	}
 
-	cv::multiply(imginfo.image.bgr_origins[BGRINDEX::B], a - 1, imginfo.filter.diff);
-	imginfo.filter.diff.convertTo(imginfo.filter.diff, CV_16S);
-	cv::add(imginfo.filter.bgr_filters[BGRINDEX::B], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::B]);
+	cv::multiply(this->image.bgr_origins[BGRINDEX::B], a - 1, this->filter.diff);
+	this->filter.diff.convertTo(this->filter.diff, CV_16S);
+	cv::add(this->filter.bgr_filters[BGRINDEX::B], this->filter.diff, this->filter.bgr_filters[BGRINDEX::B]);
 
-	cv::multiply(imginfo.image.bgr_origins[BGRINDEX::G], a - 1, imginfo.filter.diff);
-	imginfo.filter.diff.convertTo(imginfo.filter.diff, CV_16S);
-	cv::add(imginfo.filter.bgr_filters[BGRINDEX::G], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::G]);
+	cv::multiply(this->image.bgr_origins[BGRINDEX::G], a - 1, this->filter.diff);
+	this->filter.diff.convertTo(this->filter.diff, CV_16S);
+	cv::add(this->filter.bgr_filters[BGRINDEX::G], this->filter.diff, this->filter.bgr_filters[BGRINDEX::G]);
 
-	cv::multiply(imginfo.image.bgr_origins[BGRINDEX::R], a - 1, imginfo.filter.diff);
-	imginfo.filter.diff.convertTo(imginfo.filter.diff, CV_16S);
-	cv::add(imginfo.filter.bgr_filters[BGRINDEX::R], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::R]);
+	cv::multiply(this->image.bgr_origins[BGRINDEX::R], a - 1, this->filter.diff);
+	this->filter.diff.convertTo(this->filter.diff, CV_16S);
+	cv::add(this->filter.bgr_filters[BGRINDEX::R], this->filter.diff, this->filter.bgr_filters[BGRINDEX::R]);
 
-	imginfo.filter.diff.setTo(b);
-	cv::add(imginfo.filter.bgr_filters[BGRINDEX::B], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::B]);
-	cv::add(imginfo.filter.bgr_filters[BGRINDEX::G], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::G]);
-	cv::add(imginfo.filter.bgr_filters[BGRINDEX::R], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::R]);
+	this->filter.diff.setTo(b);
+	cv::add(this->filter.bgr_filters[BGRINDEX::B], this->filter.diff, this->filter.bgr_filters[BGRINDEX::B]);
+	cv::add(this->filter.bgr_filters[BGRINDEX::G], this->filter.diff, this->filter.bgr_filters[BGRINDEX::G]);
+	cv::add(this->filter.bgr_filters[BGRINDEX::R], this->filter.diff, this->filter.bgr_filters[BGRINDEX::R]);
 
-	imginfo.trackbar.brightness = brightness_pos;
-	imginfo.trackbar.constrast = constrast_pos;
-	imginfo.changed_color_space = BGR_CHANGED;
+	this->trackbar.brightness = brightness_pos;
+	this->trackbar.constrast = constrast_pos;
 }
 
-void update_exposure(int pos)
+void WorkingImgInfo::update_exposure(int pos)
 {
-	imginfo.filter.diff.setTo(abs(imginfo.trackbar.exposure));
+	this->filter.diff.setTo(abs(this->trackbar.exposure));
 
-	if (imginfo.trackbar.exposure >= 0)
+	if (this->trackbar.exposure >= 0)
 	{
-		cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::B], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::B]);
-		cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::G], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::G]);
-		cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::R], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::R]);
+		cv::subtract(this->filter.bgr_filters[BGRINDEX::B], this->filter.diff, this->filter.bgr_filters[BGRINDEX::B]);
+		cv::subtract(this->filter.bgr_filters[BGRINDEX::G], this->filter.diff, this->filter.bgr_filters[BGRINDEX::G]);
+		cv::subtract(this->filter.bgr_filters[BGRINDEX::R], this->filter.diff, this->filter.bgr_filters[BGRINDEX::R]);
 	}
 	else
 	{
-		cv::add(imginfo.filter.bgr_filters[BGRINDEX::B], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::B]);
-		cv::add(imginfo.filter.bgr_filters[BGRINDEX::G], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::G]);
-		cv::add(imginfo.filter.bgr_filters[BGRINDEX::R], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::R]);
+		cv::add(this->filter.bgr_filters[BGRINDEX::B], this->filter.diff, this->filter.bgr_filters[BGRINDEX::B]);
+		cv::add(this->filter.bgr_filters[BGRINDEX::G], this->filter.diff, this->filter.bgr_filters[BGRINDEX::G]);
+		cv::add(this->filter.bgr_filters[BGRINDEX::R], this->filter.diff, this->filter.bgr_filters[BGRINDEX::R]);
 	}
 
-	imginfo.filter.diff.setTo(abs(pos));
+	this->filter.diff.setTo(abs(pos));
 	if (pos >= 0)
 	{
-		cv::add(imginfo.filter.bgr_filters[BGRINDEX::B], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::B]);
-		cv::add(imginfo.filter.bgr_filters[BGRINDEX::G], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::G]);
-		cv::add(imginfo.filter.bgr_filters[BGRINDEX::R], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::R]);
+		cv::add(this->filter.bgr_filters[BGRINDEX::B], this->filter.diff, this->filter.bgr_filters[BGRINDEX::B]);
+		cv::add(this->filter.bgr_filters[BGRINDEX::G], this->filter.diff, this->filter.bgr_filters[BGRINDEX::G]);
+		cv::add(this->filter.bgr_filters[BGRINDEX::R], this->filter.diff, this->filter.bgr_filters[BGRINDEX::R]);
 	}
 	else
 	{
-		cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::B], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::B]);
-		cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::G], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::G]);
-		cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::R], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::R]);
+		cv::subtract(this->filter.bgr_filters[BGRINDEX::B], this->filter.diff, this->filter.bgr_filters[BGRINDEX::B]);
+		cv::subtract(this->filter.bgr_filters[BGRINDEX::G], this->filter.diff, this->filter.bgr_filters[BGRINDEX::G]);
+		cv::subtract(this->filter.bgr_filters[BGRINDEX::R], this->filter.diff, this->filter.bgr_filters[BGRINDEX::R]);
 	}
-	imginfo.trackbar.exposure = pos;
-	imginfo.changed_color_space = BGR_CHANGED;
+	this->trackbar.exposure = pos;
 }
 
-// float Ã³¸®¸¦ ÇØ¾ß °¡´É
-void update_gamma(int pos)
+// float ì²˜ë¦¬ë¥¼ í•´ì•¼ ê°€ëŠ¥
+void WorkingImgInfo::update_gamma(int pos)
 {
 	// double gammaValue=gamma/100.0;
 	// double inv_gamma=1/gammaValue;
 
-	cv::pow(imginfo.filter.diff, -imginfo.trackbar.gamma, imginfo.filter.diff);
-	cv::multiply(255, imginfo.filter.diff, imginfo.filter.diff);
-	cv::cvtColor(imginfo.filter.diff, imginfo.filter.diff, CV_8U);
-	cv::subtract(imginfo.filter.hsv_filters[HSVINDEX::V], imginfo.filter.diff, imginfo.filter.hsv_filters[HSVINDEX::V]);
+	cv::pow(this->filter.diff, -this->trackbar.gamma, this->filter.diff);
+	cv::multiply(255, this->filter.diff, this->filter.diff);
+	cv::cvtColor(this->filter.diff, this->filter.diff, CV_8U);
+	cv::subtract(this->filter.hsv_filters[HSVINDEX::V], this->filter.diff, this->filter.hsv_filters[HSVINDEX::V]);
 
-	imginfo.filter.diff = imginfo.filter.gamma_mask.clone();
+	this->filter.diff = this->filter.gamma_mask.clone();
 
-	cv::pow(imginfo.filter.diff, pos, imginfo.filter.diff);
-	cv::multiply(255, imginfo.filter.diff, imginfo.filter.diff);
-	cv::cvtColor(imginfo.filter.diff, imginfo.filter.diff, CV_8U);
-	cv::add(imginfo.filter.hsv_filters[HSVINDEX::V], imginfo.filter.diff, imginfo.filter.hsv_filters[HSVINDEX::V]);
+	cv::pow(this->filter.diff, pos, this->filter.diff);
+	cv::multiply(255, this->filter.diff, this->filter.diff);
+	cv::cvtColor(this->filter.diff, this->filter.diff, CV_8U);
+	cv::add(this->filter.hsv_filters[HSVINDEX::V], this->filter.diff, this->filter.hsv_filters[HSVINDEX::V]);
 
-	cv::cvtColor(imginfo.filter.diff, imginfo.filter.diff, CV_16S);
+	cv::cvtColor(this->filter.diff, this->filter.diff, CV_16S);
 
-	imginfo.trackbar.gamma = pos;
-	imginfo.changed_color_space = HSV_CHANGED;
+	this->trackbar.gamma = pos;
 }
 
-void update_grain(int pos)
+void WorkingImgInfo::update_grain(int pos)
 {
-	imginfo.filter.diff.convertTo(imginfo.filter.diff, CV_32F);
-	imginfo.filter.diff = imginfo.filter.grain_mask.clone();
+	this->filter.diff.convertTo(this->filter.diff, CV_32F);
+	this->filter.diff = this->filter.grain_mask.clone();
 
-	cv::multiply(imginfo.filter.diff, (pos - imginfo.trackbar.grain) / 5.0, imginfo.filter.diff);
-	imginfo.filter.diff.convertTo(imginfo.filter.diff, CV_16S);
-	cv::add(imginfo.filter.hsv_filters[HSVINDEX::V], imginfo.filter.diff, imginfo.filter.hsv_filters[HSVINDEX::V]);
+	cv::multiply(this->filter.diff, (pos - this->trackbar.grain) / 5.0, this->filter.diff);
+	this->filter.diff.convertTo(this->filter.diff, CV_16S);
+	cv::add(this->filter.hsv_filters[HSVINDEX::V], this->filter.diff, this->filter.hsv_filters[HSVINDEX::V]);
 
-	imginfo.trackbar.grain = pos;
-	imginfo.changed_color_space = HSV_CHANGED;
+	this->trackbar.grain = pos;
 }
 
-void update_vignette(int pos)
+void WorkingImgInfo::update_vignette(int pos)
 {
-	imginfo.filter.diff = imginfo.filter.gaussian_kernel.clone();
+	this->filter.diff = this->filter.gaussian_kernel.clone();
 
-	// ¾çÀÌ ¹à°Ô , À½ÀÌ ¾îµÓ°Ô
-	cv::multiply(imginfo.filter.diff, abs(imginfo.trackbar.vignette) * 0.01, imginfo.filter.diff);
-	if (imginfo.trackbar.vignette > 0)
+	// ì–‘ì´ ë°ê²Œ , ìŒì´ ì–´ë‘¡ê²Œ
+	cv::multiply(this->filter.diff, abs(this->trackbar.vignette) * 0.01, this->filter.diff);
+	if (this->trackbar.vignette > 0)
 	{
-		cv::subtract(imginfo.filter.hsv_filters[HSVINDEX::V], imginfo.filter.diff, imginfo.filter.hsv_filters[HSVINDEX::V]);
+		cv::subtract(this->filter.hsv_filters[HSVINDEX::V], this->filter.diff, this->filter.hsv_filters[HSVINDEX::V]);
 	}
-	else if (imginfo.trackbar.vignette < 0)
+	else if (this->trackbar.vignette < 0)
 	{
-		cv::add(imginfo.filter.hsv_filters[HSVINDEX::V], imginfo.filter.diff, imginfo.filter.hsv_filters[HSVINDEX::V]);
+		cv::add(this->filter.hsv_filters[HSVINDEX::V], this->filter.diff, this->filter.hsv_filters[HSVINDEX::V]);
 	}
 
-	imginfo.filter.diff = imginfo.filter.gaussian_kernel.clone();
-	cv::multiply(imginfo.filter.diff, abs(pos) * 0.01, imginfo.filter.diff);
+	this->filter.diff = this->filter.gaussian_kernel.clone();
+	cv::multiply(this->filter.diff, abs(pos) * 0.01, this->filter.diff);
 	if (pos > 0)
 	{
-		cv::add(imginfo.filter.hsv_filters[HSVINDEX::V], imginfo.filter.diff, imginfo.filter.hsv_filters[HSVINDEX::V]);
+		cv::add(this->filter.hsv_filters[HSVINDEX::V], this->filter.diff, this->filter.hsv_filters[HSVINDEX::V]);
 	}
 	else if (pos < 0)
 	{
-		cv::subtract(imginfo.filter.hsv_filters[HSVINDEX::V], imginfo.filter.diff, imginfo.filter.hsv_filters[HSVINDEX::V]);
+		cv::subtract(this->filter.hsv_filters[HSVINDEX::V], this->filter.diff, this->filter.hsv_filters[HSVINDEX::V]);
 	}
 
-	imginfo.trackbar.vignette = pos;
-	imginfo.changed_color_space = HSV_CHANGED;
+	this->trackbar.vignette = pos;
+>>>>>>> b715067f5efe127642b221a9f2e2ae8e4e4b89c0
 }
