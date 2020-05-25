@@ -393,5 +393,4 @@ void WorkingImgInfo::update_vignette(int pos)
 	}
 
 	this->trackbar.vignette = pos;
->>>>>>> b715067f5efe127642b221a9f2e2ae8e4e4b89c0
 }
