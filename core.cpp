@@ -1,28 +1,35 @@
 #include "define.h"
 #include "header.h"
 
-double GND(double x, double w, double std, double mu = 0) {
-	return w * pow(EXP, -((x - mu)*(x - mu)) / (2*std*std)) / sqrt(2*PI*std*std);
+double GND(double x, double w, double std, double mu = 0)
+{
+	return w * pow(EXP, -((x - mu) * (x - mu)) / (2 * std * std)) / sqrt(2 * PI * std * std);
 }
 
-double weight_per_saturation(int val, int mu) {
+double weight_per_saturation(int val, int mu)
+{
 	return GND((double)val, 200.0, 50.0, (double)mu);
 }
 
-double weight_per_value(int val, int mu) {
+double weight_per_value(int val, int mu)
+{
 	return GND((double)val, 200.0, 50.0, (double)mu);
 }
 
-void downsize_image(cv::Mat &src, cv::Mat &dst, int downsizedRow, int downsizedCol) {
-	if (src.rows >= downsizedRow && src.cols >= downsizedCol) {
+void downsize_image(cv::Mat &src, cv::Mat &dst, int downsizedCol, int downsizedRow)
+{
+	if (src.rows > downsizedRow || src.cols > downsizedCol)
+	{
 		cv::resize(src, dst, cv::Size(downsizedCol, downsizedRow), 0, 0, cv::INTER_AREA);
 	}
-	else {
+	else
+	{
 		dst = src.clone();
 	}
 }
 
-cv::Mat get_preview_image(cv::Mat& img, cv::Mat logo) {
+cv::Mat get_preview_image(cv::Mat &img, cv::Mat logo)
+{
 	cv::Mat res = img.clone();
 	cv::addWeighted(img, 1, logo, 0.3, 0, res);
 	return res;
@@ -32,10 +39,11 @@ cv::Mat get_preview_image(cv::Mat& img, cv::Mat logo) {
 *							applyFilter
 *	add bgr filter -> convert to hsv -> add hsv filter -> convert to bgr(res)
 *****************************************************************************/
-void apply_filter() {
+void apply_filter()
+{
 	imginfo.image.hls.convertTo(imginfo.image.hls, CV_16SC3);
 	imginfo.image.bgr.convertTo(imginfo.image.bgr, CV_16SC3);
-	
+
 	// hls
 	cv::merge(imginfo.filter.hls_filters, imginfo.filter.hls_filter);
 	imginfo.image.res.convertTo(imginfo.image.res, CV_16SC3);
@@ -52,6 +60,7 @@ void apply_filter() {
 
 	imginfo.image.bgr.convertTo(imginfo.image.bgr, CV_8UC3);
 	imginfo.image.hls.convertTo(imginfo.image.hls, CV_8UC3);
+	imginfo.image.res = get_preview_image(imginfo.image.res, imginfo.image.logo);
 
 	/*switch (imginfo.changed_color_space) {
 	case BGR_CHANGED:
@@ -79,46 +88,47 @@ void apply_filter() {
 	}*/
 }
 
-void update_hue(int pos) {
+void update_hue(int pos)
+{
 	imginfo.filter.diff.setTo(pos - imginfo.trackbar.hue);
 	cv::add(
 		imginfo.filter.hls_filters[HLSINDEX::H],
 		imginfo.filter.diff,
-		imginfo.filter.hls_filters[HLSINDEX::H]
-	);
+		imginfo.filter.hls_filters[HLSINDEX::H]);
 	imginfo.trackbar.hue = pos;
 	imginfo.changed_color_space = HLS_CHANGED;
 }
 
-void update_saturation(int pos) {
+void update_saturation(int pos)
+{
 	imginfo.filter.diff.setTo(pos - imginfo.trackbar.saturation);
 	cv::add(
 		imginfo.filter.hls_filters[HLSINDEX::S],
 		imginfo.filter.diff,
-		imginfo.filter.hls_filters[HLSINDEX::S]
-	);
+		imginfo.filter.hls_filters[HLSINDEX::S]);
 	imginfo.trackbar.saturation = pos;
 	imginfo.changed_color_space = HLS_CHANGED;
 }
 
-void update_lightness(int pos) {
+void update_lightness(int pos)
+{
 	imginfo.filter.diff.setTo(pos - imginfo.trackbar.lightness);
 	cv::add(
 		imginfo.filter.hls_filters[HLSINDEX::L],
-		imginfo.filter.diff, 
-		imginfo.filter.hls_filters[HLSINDEX::L]
-	);
+		imginfo.filter.diff,
+		imginfo.filter.hls_filters[HLSINDEX::L]);
 	imginfo.trackbar.lightness = pos;
 	imginfo.changed_color_space = HLS_CHANGED;
 }
 
-void update_temperature(int pos) {
+void update_temperature(int pos)
+{
 	imginfo.filter.diff.setTo(abs(imginfo.trackbar.temperature));
-	if (imginfo.trackbar.temperature >= 0) 
+	if (imginfo.trackbar.temperature >= 0)
 		cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::R], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::R]);
-	else 
+	else
 		cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::B], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::B]);
-	
+
 	imginfo.filter.diff.setTo(abs(pos));
 	if (pos >= 0)
 		cv::add(imginfo.filter.bgr_filters[BGRINDEX::R], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::R]);
@@ -129,27 +139,27 @@ void update_temperature(int pos) {
 	imginfo.changed_color_space = BGR_CHANGED;
 }
 
-void update_vibrance(int pos) {
+void update_vibrance(int pos)
+{
 	cv::Mat w;
 	cv::divide(
 		imginfo.image.hls_origins[HLSINDEX::L],
 		imginfo.image.hls_origins[HLSINDEX::S],
 		w,
 		(double)(pos - imginfo.trackbar.vibrance) * 0.05,
-		CV_16S
-	);
+		CV_16S);
 	cv::add(
 		imginfo.filter.hls_filters[HLSINDEX::S],
 		w,
-		imginfo.filter.hls_filters[HLSINDEX::S]
-	);
+		imginfo.filter.hls_filters[HLSINDEX::S]);
 
 	// 변경치 업데이트
 	imginfo.trackbar.vibrance = pos;
 	imginfo.changed_color_space = HLS_CHANGED;
 }
 
-void update_highlight_hue(int pos) {
+void update_highlight_hue(int pos)
+{
 	cv::Mat tmp = imginfo.filter.hls_filters[HLSINDEX::H].clone();
 	cv::addWeighted(
 		(imginfo.image.hls_origins[HLSINDEX::L]),
@@ -158,15 +168,15 @@ void update_highlight_hue(int pos) {
 		1,
 		0,
 		imginfo.filter.hls_filters[HLSINDEX::H],
-		CV_16S
-	);
+		CV_16S);
 
 	// 변경치 업데이트
 	imginfo.trackbar.highlight_hue = pos;
 	imginfo.changed_color_space = HLS_CHANGED;
 }
 
-void update_highlight_saturation(int pos) {
+void update_highlight_saturation(int pos)
+{
 	cv::Mat tmp = imginfo.filter.hls_filters[HLSINDEX::S].clone();
 	cv::addWeighted(
 		(imginfo.image.hls_origins[HLSINDEX::L]),
@@ -175,15 +185,15 @@ void update_highlight_saturation(int pos) {
 		1,
 		0,
 		imginfo.filter.hls_filters[HLSINDEX::S],
-		CV_16S
-	);
+		CV_16S);
 
 	// 변경치 업데이트
 	imginfo.trackbar.highlight_sat = pos;
 	imginfo.changed_color_space = HLS_CHANGED;
 }
 
-void update_shadow_hue(int pos) {
+void update_shadow_hue(int pos)
+{
 	cv::Mat tmp = imginfo.filter.hls_filters[HLSINDEX::H].clone();
 	cv::Mat tmp2;
 	cv::divide(15, imginfo.image.hls_origins[HLSINDEX::L], tmp2, CV_32F);
@@ -195,15 +205,15 @@ void update_shadow_hue(int pos) {
 		1,
 		0,
 		imginfo.filter.hls_filters[HLSINDEX::H],
-		CV_16S
-	);
+		CV_16S);
 
 	// 변경치 업데이트
 	imginfo.trackbar.highlight_hue = pos;
 	imginfo.changed_color_space = HLS_CHANGED;
 }
 
-void update_shadow_saturation(int pos) {
+void update_shadow_saturation(int pos)
+{
 	cv::Mat tmp = imginfo.filter.hls_filters[HLSINDEX::S].clone();
 	cv::addWeighted(
 		(100 / (imginfo.image.hls_origins[HLSINDEX::L])),
@@ -212,8 +222,7 @@ void update_shadow_saturation(int pos) {
 		1,
 		0,
 		imginfo.filter.hls_filters[HLSINDEX::S],
-		CV_16S
-	);
+		CV_16S);
 
 	// 변경치 업데이트
 	imginfo.trackbar.highlight_sat = pos;
@@ -223,7 +232,8 @@ void update_shadow_saturation(int pos) {
 /*********************************************************************
 *	이하 동훈이 코드
 *********************************************************************/
-void update_tint(int pos) {
+void update_tint(int pos)
+{
 	imginfo.filter.diff.setTo((pos - imginfo.trackbar.tint));
 	cv::add(imginfo.filter.bgr_filters[BGRINDEX::G], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::G]);
 
@@ -279,7 +289,6 @@ void update_brightness_and_constrast(int brightness_pos, int constrast_pos)
 	imginfo.filter.diff.convertTo(imginfo.filter.diff, CV_16S);
 	cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::B], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::B]);
 
-
 	cv::multiply(imginfo.image.bgr_origins[BGRINDEX::G], a - 1, imginfo.filter.diff);
 	imginfo.filter.diff.convertTo(imginfo.filter.diff, CV_16S);
 	cv::subtract(imginfo.filter.bgr_filters[BGRINDEX::G], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::G]);
@@ -309,7 +318,6 @@ void update_brightness_and_constrast(int brightness_pos, int constrast_pos)
 	cv::multiply(imginfo.image.bgr_origins[BGRINDEX::B], a - 1, imginfo.filter.diff);
 	imginfo.filter.diff.convertTo(imginfo.filter.diff, CV_16S);
 	cv::add(imginfo.filter.bgr_filters[BGRINDEX::B], imginfo.filter.diff, imginfo.filter.bgr_filters[BGRINDEX::B]);
-
 
 	cv::multiply(imginfo.image.bgr_origins[BGRINDEX::G], a - 1, imginfo.filter.diff);
 	imginfo.filter.diff.convertTo(imginfo.filter.diff, CV_16S);
@@ -398,7 +406,6 @@ void update_grain(int pos)
 
 	imginfo.trackbar.grain = pos;
 	imginfo.changed_color_space = HSV_CHANGED;
-
 }
 
 void update_vignette(int pos)
@@ -406,7 +413,7 @@ void update_vignette(int pos)
 	imginfo.filter.diff = imginfo.filter.gaussian_kernel.clone();
 
 	// 양이 밝게 , 음이 어둡게
-	cv::multiply(imginfo.filter.diff, abs(imginfo.trackbar.vignette)*0.01, imginfo.filter.diff);
+	cv::multiply(imginfo.filter.diff, abs(imginfo.trackbar.vignette) * 0.01, imginfo.filter.diff);
 	if (imginfo.trackbar.vignette > 0)
 	{
 		cv::subtract(imginfo.filter.hsv_filters[HSVINDEX::V], imginfo.filter.diff, imginfo.filter.hsv_filters[HSVINDEX::V]);
@@ -417,7 +424,7 @@ void update_vignette(int pos)
 	}
 
 	imginfo.filter.diff = imginfo.filter.gaussian_kernel.clone();
-	cv::multiply(imginfo.filter.diff, abs(pos)*0.01, imginfo.filter.diff);
+	cv::multiply(imginfo.filter.diff, abs(pos) * 0.01, imginfo.filter.diff);
 	if (pos > 0)
 	{
 		cv::add(imginfo.filter.hsv_filters[HSVINDEX::V], imginfo.filter.diff, imginfo.filter.hsv_filters[HSVINDEX::V]);
@@ -426,7 +433,6 @@ void update_vignette(int pos)
 	{
 		cv::subtract(imginfo.filter.hsv_filters[HSVINDEX::V], imginfo.filter.diff, imginfo.filter.hsv_filters[HSVINDEX::V]);
 	}
-
 
 	imginfo.trackbar.vignette = pos;
 	imginfo.changed_color_space = HSV_CHANGED;

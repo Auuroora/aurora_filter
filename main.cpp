@@ -42,17 +42,17 @@ int main()
 	*	Init
 	*********************************************************************/
 	//성수
-	cv::Mat inputImg = cv::imread("./img/test10.jpg", cv::IMREAD_COLOR);
+	// cv::Mat inputImg = cv::imread("./img/test10.jpg", cv::IMREAD_COLOR);
 
 	//동훈
-	//cv::Mat inputImg = cv::imread("2400x1600.jpg", cv::IMREAD_COLOR);
+	cv::Mat inputImg = cv::imread("2400x1600.jpg", cv::IMREAD_COLOR);
 	if (inputImg.empty())
 	{
 		std::cout << "Image Open Failed" << std::endl;
 		return -1;
 	}
 
-	imginfo.init_all(inputImg, 900, 600);
+	imginfo.init_all(inputImg, 642, 432);
 	/*********************************************************************
 	*	Make Window
 	*********************************************************************/

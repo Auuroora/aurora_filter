@@ -1,6 +1,5 @@
 *.jpg
 *.txt
-*.png
 .vscode
 CMakeFiles
 aurora_filter
