@@ -13,8 +13,8 @@ double weight_per_value(int val, int mu) {
 	return GND((double)val, 200.0, 50.0, (double)mu);
 }
 
-void downsize_image(cv::Mat &src, cv::Mat &dst, int downsized_row, int downsized_col) {
-	if (src.rows >= downsized_row && src.cols >= downsized_col) {
+void downsize_image(cv::Mat &src, cv::Mat &dst, int downsized_col, int downsized_row) {
+	if (src.rows > downsized_row || src.cols > downsized_col) {
 		cv::resize(src, dst, cv::Size(downsized_col, downsized_row), 0, 0, cv::INTER_AREA);
 	}
 	else {
@@ -32,6 +32,7 @@ cv::Mat get_preview_image(cv::Mat& img, cv::Mat logo) {
 *							applyFilter
 *	add bgr filter -> convert to hsv -> add hsv filter -> convert to bgr(res)
 *****************************************************************************/
+
 void WorkingImgInfo::apply_filter() {
 	this->image.hls.convertTo(this->image.hls, CV_16SC3);
 	this->image.bgr.convertTo(this->image.bgr, CV_16SC3);
@@ -115,7 +116,7 @@ void WorkingImgInfo:: update_vibrance(int pos) {
 		this->filter.hls_filters[HLSINDEX::S]
 	);
 
-	// º¯°æÄ¡ ¾÷µ¥ÀÌÆ®
+	// ë³€ê²½ì¹˜ ì—…ë°ì´íŠ¸
 	this->trackbar.vibrance = pos;
 }
 
@@ -131,7 +132,7 @@ void WorkingImgInfo:: update_highlight_hue(int pos) {
 		CV_16S
 	);
 
-	// º¯°æÄ¡ ¾÷µ¥ÀÌÆ®
+	// ë³€ê²½ì¹˜ ì—…ë°ì´íŠ¸
 	this->trackbar.highlight_hue = pos;
 }
 
@@ -147,7 +148,7 @@ void WorkingImgInfo:: update_highlight_saturation(int pos) {
 		CV_16S
 	);
 
-	// º¯°æÄ¡ ¾÷µ¥ÀÌÆ®
+	// ë³€ê²½ì¹˜ ì—…ë°ì´íŠ¸
 	this->trackbar.highlight_sat = pos;
 }
 
@@ -166,7 +167,7 @@ void WorkingImgInfo:: update_shadow_hue(int pos) {
 		CV_16S
 	);
 
-	// º¯°æÄ¡ ¾÷µ¥ÀÌÆ®
+	// ë³€ê²½ì¹˜ ì—…ë°ì´íŠ¸
 	this->trackbar.highlight_hue = pos;
 }
 
@@ -182,12 +183,12 @@ void WorkingImgInfo:: update_shadow_saturation(int pos) {
 		CV_16S
 	);
 
-	// º¯°æÄ¡ ¾÷µ¥ÀÌÆ®
+	// ë³€ê²½ì¹˜ ì—…ë°ì´íŠ¸
 	this->trackbar.highlight_sat = pos;
 }
 
 /*********************************************************************
-*	ÀÌÇÏ µ¿ÈÆÀÌ ÄÚµå
+*	ì´í•˜ ë™í›ˆì´ ì½”ë“œ
 *********************************************************************/
 void WorkingImgInfo:: update_tint(int pos) {
 	this->filter.diff.setTo((pos - this->trackbar.tint));
@@ -220,7 +221,7 @@ void WorkingImgInfo:: update_clarity(int pos)
 	this->trackbar.clarity = pos;
 }
 
-// Refactoring : a,b ±¸ÇÏ´Â°Ç ÇÔ¼ö·Î
+// Refactoring : a,b êµ¬í•˜ëŠ”ê±´ í•¨ìˆ˜ë¡œ
 void WorkingImgInfo:: update_brightness_and_constrast(int brightness_pos, int constrast_pos)
 {
 	double a, b;
@@ -323,7 +324,7 @@ void WorkingImgInfo:: update_exposure(int pos)
 	this->trackbar.exposure = pos;
 }
 
-// float Ã³¸®¸¦ ÇØ¾ß °¡´É
+// float ì²˜ë¦¬ë¥¼ í•´ì•¼ ê°€ëŠ¥
 void WorkingImgInfo:: update_gamma(int pos)
 {
 	// double gammaValue=gamma/100.0;
@@ -362,7 +363,7 @@ void WorkingImgInfo:: update_vignette(int pos)
 {
 	this->filter.diff = this->filter.gaussian_kernel.clone();
 
-	// ¾çÀÌ ¹à°Ô , À½ÀÌ ¾îµÓ°Ô
+	// ì–‘ì´ ë°ê²Œ , ìŒì´ ì–´ë‘¡ê²Œ
 	cv::multiply(this->filter.diff, abs(this->trackbar.vignette)*0.01, this->filter.diff);
 	if (this->trackbar.vignette > 0)
 	{

@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 *.jpg
 *.txt
 *.png
@@ -7,11 +7,9 @@ CMakeFiles
 aurora_filter
 Makefile
 *.cmake
+.DS_Store
 
 img
-=======
-﻿img
->>>>>>> 3927e758fca77a8562469bd7ef92c9c21810afae
 x64
 OpenCV Test.vcxproj
 OpenCV Test.vcxproj.filters
