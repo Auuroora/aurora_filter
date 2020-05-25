@@ -36,7 +36,7 @@ enum class HLS
 
 // Utils
 double GND(double x, double w, double std, double mu);
-void downsize_image(cv::Mat &src, cv::Mat &dst, int downsizedRow, int downsizedCol);
+void downsize_image(cv::Mat &src, cv::Mat &dst, int downsizedCol, int downsizedRow);
 void mouse_callback(int event, int x, int y, int flags, void *userdata);
 double weight_per_saturation(int val, int mu);
 double weight_per_value(int val, int mu);
@@ -172,7 +172,7 @@ public:
 	void init_all(cv::Mat &img, int downsized_col, int downsized_row)
 	{
 		this->originImg = img.clone();
-		this->init_image(downsized_row, downsized_col);
+		this->init_image(downsized_col, downsized_row);
 		this->init_filter();
 		this->init_weight();
 		this->init_trackbar(0);
@@ -199,7 +199,6 @@ public:
 		preview_row = 100;
 		preview_col = 100;
 		cv::resize(this->originImg, this->image.preview, cv::Size(preview_col, preview_row), 0, 0, cv::INTER_AREA);
-		this->image.logo = cv::imread("./img/aurora_wartermark.png", cv::IMREAD_COLOR);
 		cv::resize(this->image.logo, this->image.logo, cv::Size(this->col, this->row), 0, 0, cv::INTER_AREA);
 	}
 
