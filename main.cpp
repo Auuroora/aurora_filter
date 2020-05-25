@@ -44,6 +44,11 @@ int main() {
 	}
 
 	imginfo.init_all(inputImg, 900, 600);
+	cv::Mat tmp = imginfo.get_filtered_image(30);
+	cv::namedWindow("tmp", cv::WINDOW_NORMAL);
+	cv::resizeWindow("tmp", 200, 200);
+	cv::imshow("tmp", tmp);
+
 	/*********************************************************************
 	*	Make Window
 	*********************************************************************/
