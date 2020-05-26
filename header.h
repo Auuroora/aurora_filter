@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -12,7 +12,7 @@
 #include <iostream>
 #include "define.h"
 
-// »ö °ø°£ ÀÎµ¦½º
+// ìƒ‰ ê³µê°„ ì¸ë±ìŠ¤
 enum class BGR {
 	B, G, R
 };
@@ -27,11 +27,20 @@ enum class HLS {
 
 // Utils
 double GND(double x, double w, double std, double mu);
-void downsize_image(cv::Mat &src, cv::Mat &dst, int downsizedRow, int downsizedCol);
+void downsize_image(cv::Mat &src, cv::Mat &dst, int width, int height);
 void mouse_callback(int event, int x, int y, int flags, void *userdata);
 double weight_per_saturation(int val, int mu);
 double weight_per_value(int val, int mu);
-cv::Mat get_preview_image(cv::Mat& img, cv::Mat logo);
+
+cv::Mat get_watermarked_image(cv::Mat src_img, cv::Mat src_logo, int width = 0, int height = 0);
+cv::Mat get_preview_image(
+	cv::Mat& src_img, cv::Mat src_logo,
+	int hue = 0, int saturation = 0, int lightness = 0, int vibrance = 0,
+	int highlight_hue = 0, int highlight_sat = 0, int shadow_hue = 0, int shadow_sat = 0,
+	int temperature = 0, int tint = 0, int brightness = 0, int grain = 0,
+	int clarity = 0, int exposure = 0, int gamma = 0, int vignette = 0, int constrast = 0,
+	int width = 0, int height = 0 /* for downsizing */
+);
 
 void on_change_hue(int pos, void* ptr);
 void on_change_saturation(int v, void* ptr);
@@ -52,36 +61,32 @@ void on_change_gamma(int pos, void *ptr);
 void on_change_grain(int pos, void *ptr);
 void on_change_vignette(int pos, void *ptr);
 
-// ÀÛ¾÷ÁßÀÎ ¸ğµç º¯¼ö ´Ù ¿©±â¿¡
+// ì‘ì—…ì¤‘ì¸ ëª¨ë“  ë³€ìˆ˜ ë‹¤ ì—¬ê¸°ì—
 class WorkingImgInfo {
 public:
 	WorkingImgInfo() {
-		std::cout << "WorkingImgInfo Created!\n";
+		
 	}
 
 	/*********************************************************************
 	*	variable and struct
 	*********************************************************************/
-	int row;									// ´Ù¿î»çÀÌÂ¡ ÈÄ »çÁø ¼¼·Î(row°¡ ¼¼·Î ¸ÂÀ½)
-	int col;									// ´Ù¿î»çÀÌÂ¡ ÈÄ »çÁø °¡·Î
-	int preview_row;							// ÇÊÅÍ ¹Ì¸®º¸±â¿ë ¼¼·Î »çÀÌÁî
-	int preview_col;							// ÇÊÅÍ ¹Ì¸®º¸±â¿ë °¡·Î »çÀÌÁî
+	int width;									// ë‹¤ìš´ì‚¬ì´ì§• í›„ ì‚¬ì§„ ì„¸ë¡œ(heightê°€ ì„¸ë¡œ ë§ìŒ)
+	int height;									// ë‹¤ìš´ì‚¬ì´ì§• í›„ ì‚¬ì§„ ê°€ë¡œ
 
 	struct Image {
-		cv::Mat downsized;						// ´Ù¿î»çÀÌÂ¡ ÈÄ ÀÌ¹ÌÁö
-		cv::Mat bgr, hls, hsv, res;				// bgrÀÌ¹ÌÁö, hsvÀÌ¹ÌÁö, ÃÖÁ¾ °á°ú¹°
-		cv::Mat logo;
-		cv::Mat preview;
-		std::vector<cv::Mat> bgr_origins;		// splitÇÑ º¤ÅÍ(bgr)
-		std::vector<cv::Mat> hls_origins;		// splitÇÑ º¤ÅÍ(hls)
-		std::vector<cv::Mat> hsv_origins;		// splitÇÑ º¤ÅÍ(hsv)
+		cv::Mat downsized;						// ë‹¤ìš´ì‚¬ì´ì§• í›„ ì´ë¯¸ì§€
+		cv::Mat bgr, hls, hsv, res;				// bgrì´ë¯¸ì§€, hsvì´ë¯¸ì§€, ìµœì¢… ê²°ê³¼ë¬¼
+		std::vector<cv::Mat> bgr_origins;		// splití•œ ë²¡í„°(bgr)
+		std::vector<cv::Mat> hls_origins;		// splití•œ ë²¡í„°(hls)
+		std::vector<cv::Mat> hsv_origins;		// splití•œ ë²¡í„°(hsv)
 	} image;
 
 	struct Filter {
-		cv::Mat diff;							// ÇÊÅÍ ¿¬»êÀ» À§ÇÑ Çà·Ä
-		cv::Mat bgr_filter;						// bgrº¯°æÄ¡°¡ ±â·ÏµÇ¾î ÀÖ´Â ÇÊÅÍ
-		cv::Mat hls_filter;						// hlsº¯°æÄ¡°¡ ±â·ÏµÇ¾î ÀÖ´Â ÇÊÅÍ
-		cv::Mat hsv_filter;						// hsvº¯°æÄ¡°¡ ±â·ÏµÇ¾î ÀÖ´Â ÇÊÅÍ
+		cv::Mat diff;							// í•„í„° ì—°ì‚°ì„ ìœ„í•œ í–‰ë ¬
+		cv::Mat bgr_filter;						// bgrë³€ê²½ì¹˜ê°€ ê¸°ë¡ë˜ì–´ ìˆëŠ” í•„í„°
+		cv::Mat hls_filter;						// hlsë³€ê²½ì¹˜ê°€ ê¸°ë¡ë˜ì–´ ìˆëŠ” í•„í„°
+		cv::Mat hsv_filter;						// hsvë³€ê²½ì¹˜ê°€ ê¸°ë¡ë˜ì–´ ìˆëŠ” í•„í„°
 
 		cv::Mat clarity_filter;
 		cv::Mat clarity_mask_U;
@@ -95,19 +100,19 @@ public:
 		cv::Mat pepper_mask;
 		cv::Mat exposure_mask;
 
-		std::vector<cv::Mat> bgr_filters;		// splitÇÑ º¤ÅÍ(bgr)
-		std::vector<cv::Mat> hls_filters;		// splitÇÑ º¤ÅÍ(hls)
-		std::vector<cv::Mat> hsv_filters;		// splitÇÑ º¤ÅÍ(hsv)
+		std::vector<cv::Mat> bgr_filters;		// splití•œ ë²¡í„°(bgr)
+		std::vector<cv::Mat> hls_filters;		// splití•œ ë²¡í„°(hls)
+		std::vector<cv::Mat> hsv_filters;		// splití•œ ë²¡í„°(hsv)
 	} filter;
 
-	// »ö °ËÃâ¿ë °¡ÁßÄ¡ Çà·Ä
+	// ìƒ‰ ê²€ì¶œìš© ê°€ì¤‘ì¹˜ í–‰ë ¬
 	struct Weight {
 		cv::Mat blue, green, red;
 		cv::Mat hue, saturation, lightness;
 	} weight;
 
 	// trackbar pos
-	// ÇöÀç Æ®·¢¹Ù »óÅÂ ÀúÀåÇÑ º¯¼öµé
+	// í˜„ì¬ íŠ¸ë™ë°” ìƒíƒœ ì €ì¥í•œ ë³€ìˆ˜ë“¤
 	struct Trackbar {
 		int temperature;
 		int hue;
@@ -116,17 +121,14 @@ public:
 		int vibrance;
 		int highlight_hue;
 		int highlight_sat;
-
 		int shadow_hue;
 		int shadow_sat;
-		
 		int tint;
 		int clarity;
 		int exposure;
 		int gamma;
 		int grain;
 		int vignette;
-
 		int constrast;
 		int brightness;
 	} trackbar;
@@ -153,20 +155,25 @@ public:
 	void apply_filter();
 
 	/* first initialize */
-	void init_all(cv::Mat& img, int downsized_row, int downsized_col) {
+	void init_all(cv::Mat& img, int width, int height) {
 		this->originImg = img.clone();
-		this->init_image(downsized_row, downsized_col);
+		this->init_image(width, height);
 		this->init_filter();
 		this->init_weight();
 		this->init_trackbar(0);
 	}
 
 	/* image initialize */
-	void init_image(int downsized_row, int downsized_col) {
+	void init_image(int width, int height) {
 		/* downsizing */
-		downsize_image(this->originImg, this->image.downsized, downsized_row, downsized_col);
-		this->row = this->image.downsized.rows;
-		this->col = this->image.downsized.cols;
+		if (!width || !height) {
+			width = this->originImg.size().width;
+			height = this->originImg.size().height;
+		}
+
+		downsize_image(this->originImg, this->image.downsized, width, height);
+		this->width = this->image.downsized.size().width;
+		this->height = this->image.downsized.size().height;
 
 		/* convert */
 		this->image.bgr = this->image.downsized.clone();
@@ -175,14 +182,6 @@ public:
 		}
 		cv::cvtColor(this->image.bgr, this->image.hls, cv::COLOR_BGR2HLS);
 		cv::cvtColor(this->image.bgr, this->image.hsv, cv::COLOR_BGR2HSV);
-
-		/* load logo(for watermark) */
-		this->set_logo_image(cv::imread("./img/aurora_wartermark.png", cv::IMREAD_COLOR));
-
-		/* filter preview image */
-		preview_row = 100;
-		preview_col = 100;
-		cv::resize(this->originImg, this->image.preview, cv::Size(preview_col, preview_row), 0, 0, cv::INTER_AREA);
 	}
 
 	/* filter matrix initialize */
@@ -204,10 +203,10 @@ public:
 		this->image.hsv_origins[HSVINDEX::V].setTo(1, mask);
 
 		/* initialize filter matrix */
-		this->filter.bgr_filter = cv::Mat::zeros(this->row, this->col, CV_16SC3);
-		this->filter.hls_filter = cv::Mat::zeros(this->row, this->col, CV_16SC3);
-		this->filter.hsv_filter = cv::Mat::zeros(this->row, this->col, CV_16SC3);
-		this->filter.diff = cv::Mat::zeros(this->row, this->col, CV_16S);
+		this->filter.bgr_filter = cv::Mat::zeros(this->height, this->width, CV_16SC3);
+		this->filter.hls_filter = cv::Mat::zeros(this->height, this->width, CV_16SC3);
+		this->filter.hsv_filter = cv::Mat::zeros(this->height, this->width, CV_16SC3);
+		this->filter.diff = cv::Mat::zeros(this->height, this->width, CV_16S);
 
 		cv::split(this->filter.bgr_filter, this->filter.bgr_filters);
 		cv::split(this->filter.hls_filter, this->filter.hls_filters);
@@ -220,13 +219,13 @@ public:
 
 		//Clarity
 		cv::bilateralFilter(this->image.bgr, this->filter.clarity_filter, DISTANCE, SIGMA_COLOR, SIGMA_SPACE);
-		this->filter.clarity_mask_U = cv::Mat::zeros(this->row, this->col, CV_8UC3);
-		this->filter.clarity_mask_S = cv::Mat::zeros(this->row, this->col, CV_16SC3);
+		this->filter.clarity_mask_U = cv::Mat::zeros(this->height, this->width, CV_8UC3);
+		this->filter.clarity_mask_S = cv::Mat::zeros(this->height, this->width, CV_16SC3);
 
 		//Vignette
 		cv::Mat kernel_x, kernel_x_transpose, kernel_y, kernel_res;
-		kernel_x = cv::getGaussianKernel(this->col, 1000, CV_32F);
-		kernel_y = cv::getGaussianKernel(this->row, 1000, CV_32F);
+		kernel_x = cv::getGaussianKernel(this->width, 1000, CV_32F);
+		kernel_y = cv::getGaussianKernel(this->height, 1000, CV_32F);
 		cv::transpose(kernel_x, kernel_x_transpose);
 		kernel_res = (kernel_y * kernel_x_transpose);
 		cv::normalize(kernel_res, kernel_res, 0, 1, cv::NORM_MINMAX);
@@ -242,11 +241,11 @@ public:
 		kernel_res.deallocate();
 
 		//Grain
-		this->filter.grain_mask = cv::Mat::zeros(this->row, this->col, CV_32F);
+		this->filter.grain_mask = cv::Mat::zeros(this->height, this->width, CV_32F);
 		cv::randu(this->filter.grain_mask, cv::Scalar(-20), cv::Scalar(20));
 
 		//Exposure
-		this->filter.exposure_mask = cv::Mat::ones(this->row, this->col, CV_8UC1);
+		this->filter.exposure_mask = cv::Mat::ones(this->height, this->width, CV_8UC1);
 	}
 
 	/* make weight matrix */
@@ -282,56 +281,8 @@ public:
 	cv::Mat get_res_img() {
 		return this->image.res;
 	}
-	
-	void set_logo_image(cv::Mat logo) {
-		this->image.logo = logo;
-		cv::resize(this->image.logo, this->image.logo, cv::Size(this->col, this->row), 0, 0, cv::INTER_AREA);
-	}
-	//// ¹Ì¸®º¸±â¿ë
-	//cv::Mat get_filtered_image(int a = 0) {
-	//	
-	//}
-
-	cv::Mat get_filtered_image (
-		int hue = 0, int saturation = 0, int lightness = 0,int vibrance = 0,
-		int highlight_hue = 0, int highlight_sat = 0, int shadow_hue = 0, int shadow_sat = 0,
-		int temperature = 0, int tint = 0, int brightness = 0, int grain = 0,
-		int clarity = 0, int exposure = 0, int gamma = 0, int vignette = 0, int constrast = 0
-	) {
-		WorkingImgInfo preview_info;
-		preview_info.init_all(this->originImg, 200, 200);
-		
-		preview_info.update_hue(hue);
-		preview_info.update_saturation(saturation);
-		preview_info.update_lightness(lightness);
-		preview_info.update_vibrance(vibrance); 
-
-		preview_info.update_highlight_hue(highlight_hue);
-		preview_info.update_highlight_saturation(highlight_sat);
-		preview_info.update_shadow_hue(shadow_hue); 
-		preview_info.update_shadow_saturation(shadow_sat);
-
-		preview_info.update_temperature(temperature);
-		preview_info.update_tint(tint);
-		//preview_info.update_brightness_and_constrast(brightness);
-		preview_info.update_grain(grain);
-
-		preview_info.update_clarity(clarity);
-		preview_info.update_exposure(exposure);
-		//preview_info.update_gamma(gamma); std::cout << "hiii\n";
-		preview_info.update_vignette(vignette);
-		//preview_info.update_brightness_and_constrast(constrast);
-
-		preview_info.apply_filter();
-		return preview_info.image.res;
-	}
-
-	// ¿øº» ÀúÀå¿ë
-	cv::Mat get_filter_image_origin(std::vector<int> trackbar_pos) {
-
-	}
 private:
-	cv::Mat originImg; // º¯°æ ºÒ°¡ÇÑ ¿øº» ÀÌ¹ÌÁö(´Ù¿î»çÀÌÂ¡ Àü)
+	cv::Mat originImg; // ë³€ê²½ ë¶ˆê°€í•œ ì›ë³¸ ì´ë¯¸ì§€(ë‹¤ìš´ì‚¬ì´ì§• ì „)
 };
 
 class ParallelModulo : public cv::ParallelLoopBody {
@@ -367,7 +318,7 @@ private:
 	double(*weight_func)(int, int);
 
 public:
-	ParallelMakeWeight(cv::Mat &i, cv::Mat &w, double(*wF)(int, int)) 
+	ParallelMakeWeight(cv::Mat &i, cv::Mat &w, double(*wF)(int, int))
 		: src(i), weight_mat(w), weight_func(wF) {
 		cv::minMaxIdx(src, &min, &max);
 	}
@@ -385,3 +336,4 @@ public:
 
 /* global variable */
 extern WorkingImgInfo imginfo;
+extern cv::Mat main_logo;

@@ -6,11 +6,10 @@
 *********************************************************************/
 void mouse_callback(int event, int x, int y, int flags, void *userdata) {
 	cv::Mat* img = static_cast<cv::Mat*>(userdata);
-	cv::Mat res;
 
 	switch (event) {
 	case cv::EVENT_LBUTTONDOWN:
-		cv::imshow(TEST_WINDOW, get_preview_image(*img, imginfo.image.logo));
+		cv::imshow(TEST_WINDOW, get_preview_image(*img, get_watermarked_image(imginfo.image.res, main_logo)));
 		break;
 
 	case cv::EVENT_LBUTTONUP:

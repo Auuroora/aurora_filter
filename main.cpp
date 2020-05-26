@@ -1,7 +1,8 @@
-﻿#include "define.h"
+#include "define.h"
 #include "header.h"
 
 WorkingImgInfo imginfo;
+cv::Mat main_logo;
 
 int main() {
 	/*********************************************************************
@@ -38,17 +39,13 @@ int main() {
 	*	Init
 	*********************************************************************/
 	cv::Mat inputImg = cv::imread("./img/test10.jpg", cv::IMREAD_COLOR);
+	main_logo = cv::imread("./img/aurora_wartermark.png", cv::IMREAD_COLOR);
 	if (inputImg.empty()) {
 		std::cout << "Image Open Failed" << std::endl;
 		return -1;
 	}
 
 	imginfo.init_all(inputImg, 900, 600);
-	cv::Mat tmp = imginfo.get_filtered_image(30);
-	cv::namedWindow("tmp", cv::WINDOW_NORMAL);
-	cv::resizeWindow("tmp", 200, 200);
-	cv::imshow("tmp", tmp);
-
 	/*********************************************************************
 	*	Make Window
 	*********************************************************************/
