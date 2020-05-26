@@ -1,5 +1,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> 43b6093ab0c73fb1392ab83f21df09983c6c31fa
 *.jpg
 *.txt
 *.png
@@ -14,6 +18,7 @@ aurora_filter
 Makefile
 *.cmake
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 img
 =======
@@ -24,6 +29,11 @@ img
 
 img
 >>>>>>> 2761cb8713e7acb8cc90b2ea84784a0bbdd99c6e
+=======
+.DS_Store
+
+img
+>>>>>>> 43b6093ab0c73fb1392ab83f21df09983c6c31fa
 x64
 OpenCV Test.vcxproj
 OpenCV Test.vcxproj.filters
