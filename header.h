@@ -32,6 +32,7 @@ void mouse_callback(int event, int x, int y, int flags, void *userdata);
 double weight_per_saturation(int val, int mu);
 double weight_per_value(int val, int mu);
 
+cv::Mat cut_image(cv::Mat src, int start_x, int start_y, int end_x, int end_y);
 cv::Mat get_watermarked_image(cv::Mat src_img, cv::Mat src_logo, int width = 0, int height = 0);
 cv::Mat get_preview_image(
 	cv::Mat& src_img, cv::Mat src_logo,

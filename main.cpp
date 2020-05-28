@@ -45,7 +45,20 @@ int main() {
 		return -1;
 	}
 
+	cv::Mat tmp(inputImg, cv::Rect(100, 100, 300, 300));
+
+
 	imginfo.init_all(inputImg, 900, 600);
+
+	cv::Mat mask, res1, res2;
+	cv::Mat src = imginfo.image.hls_origins[HLSINDEX::S].clone();
+	
+	cv::inRange(src, 0, 100, mask);
+
+	cv::threshold(src, mask, 50, 1, cv::THRESH_BINARY_INV);
+	cv::addWeighted(src, 1.0, mask, 60.0, 0, res1);
+
+
 	/*********************************************************************
 	*	Make Window
 	*********************************************************************/

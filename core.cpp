@@ -22,6 +22,11 @@ void downsize_image(cv::Mat &src, cv::Mat &dst, int width, int height) {
 	}
 }
 
+cv::Mat cut_image(cv::Mat src, int start_x, int start_y, int end_x, int end_y) {
+	cv::Mat dst(src, cv::Rect(start_x, start_y, end_x, end_y));
+	return dst;
+}
+
 // return img + logo
 cv::Mat get_watermarked_image(cv::Mat src_img, cv::Mat src_logo, int width, int height) {
 	cv::Mat res_img, res_logo;
@@ -143,19 +148,22 @@ void WorkingImgInfo::update_temperature(int pos) {
 }
 
 void WorkingImgInfo::update_vibrance(int pos) {
-	cv::Mat w;
-	cv::divide(
-		this->image.hls_origins[HLSINDEX::L],
-		this->image.hls_origins[HLSINDEX::S],
-		w,
-		(double)(pos - this->trackbar.vibrance) * 0.05,
-		CV_16S
-	);
-	cv::add(
-		this->filter.hls_filters[HLSINDEX::S],
-		w,
-		this->filter.hls_filters[HLSINDEX::S]
-	);
+	//cv::Mat w;
+	//cv::divide(
+	//	this->image.hls_origins[HLSINDEX::L],
+	//	this->image.hls_origins[HLSINDEX::S],
+	//	w,
+	//	(double)(pos - this->trackbar.vibrance) * 0.05,
+	//	CV_16S
+	//);
+	//cv::add(
+	//	this->filter.hls_filters[HLSINDEX::S],
+	//	w,
+	//	this->filter.hls_filters[HLSINDEX::S]
+	//);
+
+	cv::Mat mask;
+
 
 	// 변경치 업데이트
 	this->trackbar.vibrance = pos;
