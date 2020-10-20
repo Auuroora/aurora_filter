@@ -178,11 +178,18 @@ public:
 
 		/* convert */
 		this->image.bgr = this->image.downsized.clone();
+		this->image.res = this->image.bgr.clone();
 		if (this->image.bgr.channels() == 4) {
 			cv::cvtColor(this->image.bgr, this->image.bgr, cv::COLOR_BGRA2BGR);
 		}
 		cv::cvtColor(this->image.bgr, this->image.hls, cv::COLOR_BGR2HLS);
 		cv::cvtColor(this->image.bgr, this->image.hsv, cv::COLOR_BGR2HSV);
+
+		// convert 32F
+		this->image.bgr.convertTo(this->image.bgr, CV_32FC3);
+		this->image.hls.convertTo(this->image.hls, CV_32FC3);
+		this->image.hsv.convertTo(this->image.hsv, CV_32FC3);
+		this->image.res.convertTo(this->image.res, CV_32FC3);
 	}
 
 	/* filter matrix initialize */
@@ -204,10 +211,10 @@ public:
 		this->image.hsv_origins[HSVINDEX::V].setTo(1, mask);
 
 		/* initialize filter matrix */
-		this->filter.bgr_filter = cv::Mat::zeros(this->height, this->width, CV_16SC3);
-		this->filter.hls_filter = cv::Mat::zeros(this->height, this->width, CV_16SC3);
-		this->filter.hsv_filter = cv::Mat::zeros(this->height, this->width, CV_16SC3);
-		this->filter.diff = cv::Mat::zeros(this->height, this->width, CV_16S);
+		this->filter.bgr_filter = cv::Mat::zeros(this->height, this->width, CV_32FC3);
+		this->filter.hls_filter = cv::Mat::zeros(this->height, this->width, CV_32FC3);
+		this->filter.hsv_filter = cv::Mat::zeros(this->height, this->width, CV_32FC3);
+		this->filter.diff = cv::Mat::zeros(this->height, this->width, CV_32F);
 
 		cv::split(this->filter.bgr_filter, this->filter.bgr_filters);
 		cv::split(this->filter.hls_filter, this->filter.hls_filters);
@@ -251,7 +258,23 @@ public:
 
 	/* make weight matrix */
 	void init_weight() {
-		// TO DO
+		this->weight.hue = cv::Mat::zeros(this->height, this->width, CV_32F);
+		this->weight.saturation = cv::Mat::zeros(this->height, this->width, CV_32F);
+		this->weight.lightness = cv::Mat::zeros(this->height, this->width, CV_32F);
+		
+		double w = 30;
+		double mu = 130;
+		double std = 10;
+		cv::Mat src = this->image.hls_origins[HLSINDEX::L];
+		cv::Mat dest = this->weight.lightness;
+
+		for (int y = 0; y < src.rows; y++) {
+			float* pointer_input = src.ptr<float>(y);
+			float* pointer_output = dest.ptr<float>(y);
+			for (int x = 0; x < src.cols; x++) {
+				pointer_output[x] += (w * pow(EXP, -((pointer_input[x] - mu)*(pointer_input[x] - mu)) / (2.0 * std*std)) / sqrt(2.0 * PI*std*std));
+			}
+		}
 	}
 
 	/* set trackbar pos */
@@ -280,7 +303,9 @@ public:
 	}
 
 	cv::Mat get_res_img() {
-		return this->image.res;
+		cv::Mat res;
+		this->image.res.convertTo(res, CV_8UC3);
+		return res;
 	}
 private:
 	cv::Mat originImg; // 변경 불가한 원본 이미지(다운사이징 전)

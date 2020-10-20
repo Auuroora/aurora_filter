@@ -1,3 +1,8 @@
+/*********************************************************************************
+ *  개발자: 김성수
+ *  본 소스는 카메라 필터 어플리케이션에 들어갈 Image Processing을 위한 소스파일 입니다.
+ *********************************************************************************/
+
 #include "define.h"
 #include "header.h"
 
@@ -38,33 +43,20 @@ int main() {
 	/*********************************************************************
 	*	Init
 	*********************************************************************/
-	cv::Mat inputImg = cv::imread("./img/test10.jpg", cv::IMREAD_COLOR);
+	cv::Mat inputImg = cv::imread("test33.jpg", cv::IMREAD_COLOR);
 	main_logo = cv::imread("./img/aurora_wartermark.png", cv::IMREAD_COLOR);
 	if (inputImg.empty()) {
 		std::cout << "Image Open Failed" << std::endl;
 		return -1;
 	}
 
-	cv::Mat tmp(inputImg, cv::Rect(100, 100, 300, 300));
-
-
 	imginfo.init_all(inputImg, 900, 600);
-
-	cv::Mat mask, res1, res2;
-	cv::Mat src = imginfo.image.hls_origins[HLSINDEX::S].clone();
-	
-	cv::inRange(src, 0, 100, mask);
-
-	cv::threshold(src, mask, 50, 1, cv::THRESH_BINARY_INV);
-	cv::addWeighted(src, 1.0, mask, 60.0, 0, res1);
-
-
 	/*********************************************************************
 	*	Make Window
 	*********************************************************************/
 	cv::namedWindow(TEST_WINDOW, cv::WINDOW_NORMAL);
 	cv::resizeWindow(TEST_WINDOW, 400, 600);
-	cv::setMouseCallback(TEST_WINDOW, mouse_callback, &imginfo.image.res);
+	//cv::setMouseCallback(TEST_WINDOW, mouse_callback, &imginfo.image.res);
 
 	cv::namedWindow(SET_WINDOW, cv::WINDOW_NORMAL);
 	cv::resizeWindow(SET_WINDOW, 500, 200);

@@ -1,3 +1,8 @@
+/*
+ 
+ Function for Image Processing
+ 
+ */
 #include "define.h"
 #include "header.h"
 
@@ -47,8 +52,7 @@ cv::Mat get_preview_image(
 	int highlight_hue, int highlight_sat, int shadow_hue, int shadow_sat,
 	int temperature, int tint, int brightness, int grain,
 	int clarity, int exposure, int gamma, int vignette, int constrast,
-	int width, int height /* for downsizing */
-) {
+	int width, int height /* for downsizing */) {
 	WorkingImgInfo preview_info;
 	preview_info.init_all(src_img, width, height);
 
@@ -80,25 +84,18 @@ cv::Mat get_preview_image(
 *****************************************************************************/
 
 void WorkingImgInfo::apply_filter() {
-	this->image.hls.convertTo(this->image.hls, CV_16SC3);
-	this->image.bgr.convertTo(this->image.bgr, CV_16SC3);
-
-	// hls
+	// apply hls filter
 	cv::merge(this->filter.hls_filters, this->filter.hls_filter);
-	this->image.res.convertTo(this->image.res, CV_16SC3);
-	cv::add(this->image.hls, this->filter.hls_filter, this->image.res); /**/
-	this->image.res.convertTo(this->image.res, CV_8UC3);
+	cv::add(this->image.hls, this->filter.hls_filter, this->image.res);
 
-	// bgr
+	// convert for color space change
+	this->image.res.convertTo(this->image.res, CV_8UC3);
 	cv::cvtColor(this->image.res, this->image.res, cv::COLOR_HLS2BGR);
+	this->image.res.convertTo(this->image.res, CV_32FC3);
+
+	// apply bgr filters
 	cv::merge(this->filter.bgr_filters, this->filter.bgr_filter);
-
-	this->image.res.convertTo(this->image.res, CV_16SC3);
 	cv::add(this->image.res, this->filter.bgr_filter, this->image.res);
-	this->image.res.convertTo(this->image.res, CV_8UC3);
-
-	this->image.bgr.convertTo(this->image.bgr, CV_8UC3);
-	this->image.hls.convertTo(this->image.hls, CV_8UC3);
 }
 
 void WorkingImgInfo::update_hue(int pos) {
@@ -148,24 +145,15 @@ void WorkingImgInfo::update_temperature(int pos) {
 }
 
 void WorkingImgInfo::update_vibrance(int pos) {
-	//cv::Mat w;
-	//cv::divide(
-	//	this->image.hls_origins[HLSINDEX::L],
-	//	this->image.hls_origins[HLSINDEX::S],
-	//	w,
-	//	(double)(pos - this->trackbar.vibrance) * 0.05,
-	//	CV_16S
-	//);
-	//cv::add(
-	//	this->filter.hls_filters[HLSINDEX::S],
-	//	w,
-	//	this->filter.hls_filters[HLSINDEX::S]
-	//);
-
-	cv::Mat mask;
-
-
-	// º¯°æÄ¡ ¾÷µ¥ÀÌÆ®
+	cv::Mat src = this->filter.hls_filters[HLSINDEX::S].clone();
+	cv::addWeighted(
+		src,
+		1.0,
+		this->weight.lightness,
+		(double)(pos - this->trackbar.vibrance),
+		1.0,
+		this->filter.hls_filters[HLSINDEX::S]
+	);
 	this->trackbar.vibrance = pos;
 }
 
@@ -177,11 +165,10 @@ void WorkingImgInfo::update_highlight_hue(int pos) {
 		tmp,
 		1,
 		0,
-		this->filter.hls_filters[HLSINDEX::H],
-		CV_16S
+		this->filter.hls_filters[HLSINDEX::H]
 	);
 
-	// º¯°æÄ¡ ¾÷µ¥ÀÌÆ®
+	// ï¿½ï¿½ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 	this->trackbar.highlight_hue = pos;
 }
 
@@ -193,11 +180,10 @@ void WorkingImgInfo::update_highlight_saturation(int pos) {
 		tmp,
 		1,
 		0,
-		this->filter.hls_filters[HLSINDEX::S],
-		CV_16S
+		this->filter.hls_filters[HLSINDEX::S]
 	);
 
-	// º¯°æÄ¡ ¾÷µ¥ÀÌÆ®
+	// ï¿½ï¿½ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 	this->trackbar.highlight_sat = pos;
 }
 
@@ -212,11 +198,10 @@ void WorkingImgInfo::update_shadow_hue(int pos) {
 		tmp,
 		1,
 		0,
-		this->filter.hls_filters[HLSINDEX::H],
-		CV_16S
+		this->filter.hls_filters[HLSINDEX::H]
 	);
 
-	// º¯°æÄ¡ ¾÷µ¥ÀÌÆ®
+	// ï¿½ï¿½ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 	this->trackbar.highlight_hue = pos;
 }
 
@@ -228,16 +213,15 @@ void WorkingImgInfo::update_shadow_saturation(int pos) {
 		tmp,
 		1,
 		0,
-		this->filter.hls_filters[HLSINDEX::S],
-		CV_16S
+		this->filter.hls_filters[HLSINDEX::S]
 	);
 
-	// º¯°æÄ¡ ¾÷µ¥ÀÌÆ®
+	// ï¿½ï¿½ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 	this->trackbar.highlight_sat = pos;
 }
 
 /*********************************************************************
-*	ÀÌÇÏ µ¿ÈÆÀÌ ÄÚµå
+*	ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½
 *********************************************************************/
 void WorkingImgInfo::update_tint(int pos) {
 	this->filter.diff.setTo((pos - this->trackbar.tint));
@@ -270,7 +254,7 @@ void WorkingImgInfo::update_clarity(int pos)
 	this->trackbar.clarity = pos;
 }
 
-// Refactoring : a,b ±¸ÇÏ´Â°Ç ÇÔ¼ö·Î
+// Refactoring : a,b ï¿½ï¿½ï¿½Ï´Â°ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½
 void WorkingImgInfo::update_brightness_and_constrast(int brightness_pos, int constrast_pos)
 {
 	double a, b;
@@ -373,7 +357,7 @@ void WorkingImgInfo::update_exposure(int pos)
 	this->trackbar.exposure = pos;
 }
 
-// float Ã³¸®¸¦ ÇØ¾ß °¡´É
+// float Ã³ï¿½ï¿½ï¿½ï¿½ ï¿½Ø¾ï¿½ ï¿½ï¿½ï¿½ï¿½
 void WorkingImgInfo::update_gamma(int pos)
 {
 	// double gammaValue=gamma/100.0;
@@ -412,7 +396,7 @@ void WorkingImgInfo::update_vignette(int pos)
 {
 	this->filter.diff = this->filter.gaussian_kernel.clone();
 
-	// ¾çÀÌ ¹à°Ô , À½ÀÌ ¾îµÓ°Ô
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ , ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ó°ï¿½
 	cv::multiply(this->filter.diff, abs(this->trackbar.vignette)*0.01, this->filter.diff);
 	if (this->trackbar.vignette > 0)
 	{
